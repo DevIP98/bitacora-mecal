@@ -189,6 +189,8 @@ const GitHubDB = {
     },
 
     aplicarConfiguracion(config) {
+        console.log('Aplicando configuración GitHubDB:', config);
+        
         this.owner = config.owner;
         this.repo = config.repo;
         this.token = config.token || null;
@@ -200,9 +202,15 @@ const GitHubDB = {
             token: config.token,
             lastUpdated: new Date().toISOString()
         };
+        
         localStorage.setItem('github-config', JSON.stringify(configToSave));
+        console.log('Configuración guardada en localStorage:', configToSave);
         
         this.actualizarEstadoConexion();
+    },
+
+    isConfigured() {
+        return !!(this.owner && this.repo);
     },
 
     showConfigModal() {
@@ -252,9 +260,15 @@ const GitHubDB = {
     },
 
     async probarYGuardarConfig() {
-        const owner = document.getElementById('github-owner').value.trim();
-        const repo = document.getElementById('github-repo').value.trim();
-        const token = document.getElementById('github-token').value.trim();
+        const ownerInput = document.getElementById('github-owner');
+        const repoInput = document.getElementById('github-repo');
+        const tokenInput = document.getElementById('github-token');
+        
+        const owner = ownerInput ? ownerInput.value.trim() : '';
+        const repo = repoInput ? repoInput.value.trim() : '';
+        const token = tokenInput ? tokenInput.value.trim() : '';
+        
+        console.log('Configuración a guardar:', { owner, repo, hasToken: !!token });
         
         if (!owner || !repo) {
             this.mostrarResultadoPrueba('Por favor completa usuario y repositorio', 'error');
@@ -291,17 +305,33 @@ const GitHubDB = {
                 deviceConfigured: navigator.userAgent.substring(0, 50)
             };
 
+            console.log('Aplicando configuración:', config);
             this.aplicarConfiguracion(config);
             
             // Guardar configuración en GitHub para otros dispositivos
-            await this.guardarConfiguracionEnGitHub(config);
-            
-            this.mostrarResultadoPrueba('✅ Configuración guardada exitosamente', 'success');
+            if (token) {
+                await this.guardarConfiguracionEnGitHub(config);
+                this.mostrarResultadoPrueba('✅ Configuración guardada exitosamente y sincronizada', 'success');
+            } else {
+                this.mostrarResultadoPrueba('✅ Configuración guardada (modo solo lectura)', 'success');
+            }
             
             setTimeout(() => {
-                document.querySelector('.modal-overlay').remove();
-                showNotification('GitHub configurado correctamente para todos los dispositivos', 'success');
-                startAutoSync();
+                const modalOverlay = document.querySelector('.modal-overlay');
+                if (modalOverlay) {
+                    modalOverlay.remove();
+                }
+                
+                if (token) {
+                    showNotification('GitHub configurado correctamente para todos los dispositivos', 'success');
+                    startAutoSync();
+                } else {
+                    showNotification('GitHub configurado en modo lectura - exporta manualmente para sincronizar', 'info');
+                }
+                
+                // Actualizar la UI
+                this.actualizarEstadoConexion();
+                
             }, 2000);
 
         } catch (error) {
@@ -359,7 +389,10 @@ const GitHubDB = {
     },
 
     saltarConfiguracion() {
-        document.querySelector('.modal-overlay').remove();
+        const modalOverlay = document.querySelector('.modal-overlay');
+        if (modalOverlay) {
+            modalOverlay.remove();
+        }
         showNotification('Trabajando en modo local únicamente', 'info');
         this.actualizarEstadoConexion();
     },
@@ -458,19 +491,6 @@ function abrirConfiguracionGitHub() {
 
 function sincronizarManual() {
     sincronizarConGitHub();
-}
-
-function startAutoSync() {
-    if (BitacoraApp.syncInterval) {
-        clearInterval(BitacoraApp.syncInterval);
-    }
-    
-    if (GitHubDB.owner && GitHubDB.repo) {
-        // Sincronizar cada 5 minutos
-        BitacoraApp.syncInterval = setInterval(() => {
-            sincronizarConGitHub();
-        }, 5 * 60 * 1000);
-    }
 }
 
 // ===== SINCRONIZACIÓN =====
