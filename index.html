@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora Producción MECAL</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1><i class="fas fa-clipboard-list"></i> Bitácora Producción MECAL</h1>
+            <nav>
+                <button class="btn-nav" onclick="showPage('registro')">
+                    <i class="fas fa-plus"></i> Nuevo Registro
+                </button>
+                <button class="btn-nav" onclick="showPage('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="btn-nav" onclick="showPage('historial')">
+                    <i class="fas fa-history"></i> Historial
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- PÁGINA DE REGISTRO -->
+        <div id="page-registro" class="page active">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-plus-circle"></i> Nuevo Registro de Bitácora</h2>
+                    <p>Registra el estado de los equipos para el servicio</p>
+                </div>
+
+                <form id="bitacoraForm" class="bitacora-form">
+                    <!-- Información del Servicio -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Información del Servicio</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoServicio">Tipo de Servicio *</label>
+                                <select id="tipoServicio" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Servicio Domingo AM">Servicio Domingo AM</option>
+                                    <option value="Servicio Domingo PM">Servicio Domingo PM</option>
+                                    <option value="Servicio Miércoles">Servicio Miércoles</option>
+                                    <option value="Evento Especial">Evento Especial</option>
+                                    <option value="Ensayo">Ensayo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaServicio">Fecha del Servicio *</label>
+                                <input type="date" id="fechaServicio" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="horaInicio">Hora de Inicio *</label>
+                                <input type="time" id="horaInicio" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="horaFinalizacion">Hora de Finalización</label>
+                                <input type="time" id="horaFinalizacion">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="observacionesGenerales">Observaciones Generales</label>
+                            <textarea id="observacionesGenerales" placeholder="Descripción general del servicio, incidencias, etc."></textarea>
+                        </div>
+                    </section>
+
+                    <!-- Estado de los Equipos -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-cogs"></i> Estado de los Equipos</h3>
+                        <p class="section-subtitle">Marca el estado actual de cada equipo</p>
+
+                        <!-- Audio -->
+                        <div class="equipment-category">
+                            <h4><i class="fas fa-volume-up"></i> Audio</h4>
+                            <div class="equipment-grid">
+                                <div class="equipment-item">
+                                    <label>Micrófonos Inalámbricos</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-inalambricos" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-inalambricos" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-inalambricos" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>Micrófonos Inalámbricos</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-instalaciones" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-instalaciones" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-instalaciones" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>Piano de Senda</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="audio" data-item="piano-senda" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="audio" data-item="piano-senda" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="audio" data-item="piano-senda" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Computadoras -->
+                        <div class="equipment-category">
+                            <h4><i class="fas fa-desktop"></i> Computadoras</h4>
+                            <div class="equipment-grid">
+                                <div class="equipment-item">
+                                    <label>CPU Principal</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="computadoras" data-item="cpu-principal" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="computadoras" data-item="cpu-principal" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="computadoras" data-item="cpu-principal" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>Monitor Principal</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="computadoras" data-item="monitor-principal" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="computadoras" data-item="monitor-principal" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="computadoras" data-item="monitor-principal" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conectividad -->
+                        <div class="equipment-category">
+                            <h4><i class="fas fa-wifi"></i> Conectividad</h4>
+                            <div class="equipment-grid">
+                                <div class="equipment-item">
+                                    <label>Cables HDMI</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-hdmi" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-hdmi" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-hdmi" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>Cajas de Audio</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cajas-audio" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cajas-audio" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cajas-audio" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Internet -->
+                        <div class="equipment-category">
+                            <h4><i class="fas fa-globe"></i> Internet</h4>
+                            <div class="equipment-grid">
+                                <div class="equipment-item">
+                                    <label>Router WiFi</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="internet" data-item="router-wifi" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="internet" data-item="router-wifi" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="internet" data-item="router-wifi" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video -->
+                        <div class="equipment-category">
+                            <h4><i class="fas fa-video"></i> Video</h4>
+                            <div class="equipment-grid">
+                                <div class="equipment-item">
+                                    <label>Cámara de Captura</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="video" data-item="camara-captura" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="video" data-item="camara-captura" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="video" data-item="camara-captura" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>TV 1</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="video" data-item="tv-1" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="video" data-item="tv-1" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="video" data-item="tv-1" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+
+                                <div class="equipment-item">
+                                    <label>TV 2</label>
+                                    <div class="status-buttons">
+                                        <button type="button" class="status-btn good" data-category="video" data-item="tv-2" data-status="bueno">
+                                            <i class="fas fa-check"></i> Bueno
+                                        </button>
+                                        <button type="button" class="status-btn warning" data-category="video" data-item="tv-2" data-status="regular">
+                                            <i class="fas fa-exclamation-triangle"></i> Regular
+                                        </button>
+                                        <button type="button" class="status-btn danger" data-category="video" data-item="tv-2" data-status="malo">
+                                            <i class="fas fa-times"></i> Malo
+                                        </button>
+                                    </div>
+                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Información del Responsable -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-user"></i> Información del Responsable</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombreResponsable">Nombre del Responsable *</label>
+                                <input type="text" id="nombreResponsable" required placeholder="Nombre completo">
+                            </div>
+                            <div class="form-group">
+                                <label for="rolResponsable">Rol/Función *</label>
+                                <select id="rolResponsable" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Técnico Audio">Técnico Audio</option>
+                                    <option value="Técnico Video">Técnico Video</option>
+                                    <option value="Coordinador Técnico">Coordinador Técnico</option>
+                                    <option value="Asistente">Asistente</option>
+                                    <option value="Voluntario">Voluntario</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo"></i> Limpiar Formulario
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Registro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PÁGINA DASHBOARD -->
+        <div id="page-dashboard" class="page">
+            <div class="dashboard-header">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard - Estado Actual</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card good">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="stat-number" id="stat-good">0</span>
+                        <span class="stat-label">Equipos en Buen Estado</span>
+                    </div>
+                    <div class="stat-card warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="stat-number" id="stat-warning">0</span>
+                        <span class="stat-label">Equipos con Problemas</span>
+                    </div>
+                    <div class="stat-card danger">
+                        <i class="fas fa-times-circle"></i>
+                        <span class="stat-number" id="stat-danger">0</span>
+                        <span class="stat-label">Equipos Fuera de Servicio</span>
+                    </div>
+                </div>
+            </div>
+            <div id="dashboard-content" class="dashboard-grid">
+                <!-- El contenido se genera dinámicamente -->
+            </div>
+        </div>
+
+        <!-- PÁGINA HISTORIAL -->
+        <div id="page-historial" class="page">
+            <div class="historial-header">
+                <h2><i class="fas fa-history"></i> Historial de Registros</h2>
+                <div class="historial-filters">
+                    <input type="date" id="filter-fecha" placeholder="Filtrar por fecha">
+                    <select id="filter-servicio">
+                        <option value="">Todos los servicios</option>
+                        <option value="Servicio Domingo AM">Servicio Domingo AM</option>
+                        <option value="Servicio Domingo PM">Servicio Domingo PM</option>
+                        <option value="Servicio Miércoles">Servicio Miércoles</option>
+                        <option value="Evento Especial">Evento Especial</option>
+                        <option value="Ensayo">Ensayo</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="exportToJSON()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="abrirConfiguracionGitHub()">
+                        <i class="fas fa-cog"></i> Configurar GitHub
+                    </button>
+                    <button class="btn btn-success" onclick="sincronizarManual()">
+                        <i class="fas fa-sync"></i> Sincronizar
+                    </button>
+                </div>
+            </div>
+            <div id="historial-content" class="historial-list">
+                <!-- El contenido se genera dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para configuración de GitHub -->
+    <div id="github-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fab fa-github"></i> Configuración de GitHub</h3>
+                <button class="modal-close" onclick="cerrarModalGitHub()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Para sincronizar datos entre dispositivos, necesitas configurar GitHub:</p>
+                
+                <div class="config-section">
+                    <h4>1. Información del Repositorio</h4>
+                    <div class="form-group">
+                        <label for="github-owner">Usuario/Organización de GitHub:</label>
+                        <input type="text" id="github-owner" placeholder="tu-usuario-github" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="github-repo">Nombre del Repositorio:</label>
+                        <input type="text" id="github-repo" placeholder="bitacora-mecal" value="">
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h4>2. Token de Acceso (Opcional para lectura)</h4>
+                    <div class="form-group">
+                        <label for="github-token">Personal Access Token:</label>
+                        <input type="password" id="github-token" placeholder="Opcional - solo para escritura">
+                        <small>
+                            Para crear un token: GitHub → Settings → Developer settings → Personal access tokens → 
+                            Generate new token (classic) → Seleccionar "repo" permissions
+                        </small>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h4>3. Estado de Conexión</h4>
+                    <div id="github-status" class="status-indicator">
+                        <i class="fas fa-circle"></i> <span>No configurado</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalGitHub()">Cancelar</button>
+                <button class="btn btn-primary" onclick="testearConexionGitHub()">Probar Conexión</button>
+                <button class="btn btn-success" onclick="guardarConfiguracionGitHub()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
