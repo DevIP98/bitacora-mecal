@@ -1174,24 +1174,26 @@ function saveRegistro(registro) {
 }
 
 function loadRegistros() {
-    // Verificar si data.js está limpio
-    const registrosCentrales = typeof obtenerRegistros === 'function' ? obtenerRegistros() : [];
-    
-    if (registrosCentrales.length === 0) {
-        // Sistema limpio - limpiar también localStorage
-        localStorage.removeItem('bitacoraRegistros');
-        console.log('🧹 Sistema iniciado limpio - sin registros');
-        return [];
-    }
-    
-    // Combinar registros locales y centrales solo si hay datos centrales
+    // Cargar registros locales siempre
     const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
     
-    // Combinar y eliminar duplicados
+    // Intentar cargar registros centrales (data.js)
+    let registrosCentrales = [];
+    try {
+        registrosCentrales = typeof obtenerRegistros === 'function' ? obtenerRegistros() : [];
+    } catch (error) {
+        console.log('No se pudieron cargar registros centrales:', error.message);
+    }
+    
+    // Combinar todos los registros
     const todosRegistros = [...registrosCentrales, ...registrosLocales];
+    
+    // Eliminar duplicados por ID
     const registrosUnicos = todosRegistros.filter((registro, index, self) => 
         index === self.findIndex(r => r.id === registro.id)
     );
+    
+    console.log(`📊 Registros cargados: ${registrosLocales.length} locales + ${registrosCentrales.length} centrales = ${registrosUnicos.length} únicos`);
     
     return registrosUnicos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 }
