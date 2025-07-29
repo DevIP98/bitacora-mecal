@@ -99,143 +99,385 @@ function initializeApp() {
     console.log('Aplicación inicializada correctamente');
 }
 
-// ===== CONFIGURACIÓN GITHUB =====
-function initializeGitHub() {
-    // Cargar configuración guardada
-    const savedConfig = localStorage.getItem('github-config');
-    if (savedConfig) {
-        const config = JSON.parse(savedConfig);
-        BitacoraApp.github = { ...BitacoraApp.github, ...config };
-        updateGitHubStatus();
-    }
+// ===== CONFIGURACIÓN GITHUB CENTRALIZADA =====
+const GitHubDB = {
+    owner: null,
+    repo: null,
+    token: null,
+    branch: 'main',
+    configFile: 'config.json',
     
-    // Mostrar badge de estado en el header
-    updateHeaderBadge();
+    async init() {
+        await this.cargarConfiguracion();
+        
+        // Si no hay configuración, intentar cargarla desde GitHub
+        if (!this.owner || !this.repo) {
+            const configRemota = await this.intentarCargarConfigRemota();
+            if (configRemota) {
+                this.aplicarConfiguracion(configRemota);
+                showNotification('Configuración cargada automáticamente', 'success');
+            } else {
+                this.showConfigModal();
+            }
+        } else {
+            // Verificar si hay configuración más reciente en GitHub
+            await this.sincronizarConfiguracion();
+        }
+        
+        this.actualizarEstadoConexion();
+    },
+
+    async cargarConfiguracion() {
+        const config = localStorage.getItem('github-config');
+        if (config) {
+            const parsedConfig = JSON.parse(config);
+            this.owner = parsedConfig.owner;
+            this.repo = parsedConfig.repo;
+            this.token = parsedConfig.token;
+        }
+    },
+
+    async intentarCargarConfigRemota() {
+        // Lista de repositorios comunes para buscar configuración
+        const posiblesRepos = [
+            { owner: 'DevIP98', repo: 'bitacora-mecal' },
+            // Se puede expandir con otros repos conocidos
+        ];
+
+        for (const repo of posiblesRepos) {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/${this.configFile}`);
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const configContent = JSON.parse(atob(fileData.content));
+                    return {
+                        owner: repo.owner,
+                        repo: repo.repo,
+                        ...configContent
+                    };
+                }
+            } catch (error) {
+                console.log(`No se encontró configuración en ${repo.owner}/${repo.repo}`);
+            }
+        }
+        return null;
+    },
+
+    async sincronizarConfiguracion() {
+        try {
+            const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${this.configFile}`);
+            if (response.ok) {
+                const fileData = await response.json();
+                const configRemota = JSON.parse(atob(fileData.content));
+                
+                // Si la configuración remota es más reciente, actualizarla
+                const configLocal = JSON.parse(localStorage.getItem('github-config') || '{}');
+                if (!configLocal.lastUpdated || 
+                    new Date(configRemota.lastUpdated || 0) > new Date(configLocal.lastUpdated || 0)) {
+                    
+                    this.aplicarConfiguracion({
+                        owner: this.owner,
+                        repo: this.repo,
+                        ...configRemota
+                    });
+                    showNotification('Configuración actualizada automáticamente', 'info');
+                }
+            }
+        } catch (error) {
+            console.log('No se pudo sincronizar configuración:', error.message);
+        }
+    },
+
+    aplicarConfiguracion(config) {
+        this.owner = config.owner;
+        this.repo = config.repo;
+        this.token = config.token || null;
+        
+        // Guardar localmente
+        const configToSave = {
+            owner: config.owner,
+            repo: config.repo,
+            token: config.token,
+            lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem('github-config', JSON.stringify(configToSave));
+        
+        this.actualizarEstadoConexion();
+    },
+
+    showConfigModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fab fa-github"></i> Configuración GitHub - Una sola vez</h3>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <p>Esta configuración se sincronizará automáticamente en todos los dispositivos.</p>
+                    
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label for="github-owner">Usuario/Organización de GitHub:</label>
+                            <input type="text" id="github-owner" placeholder="DevIP98" value="DevIP98">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github-repo">Nombre del Repositorio:</label>
+                            <input type="text" id="github-repo" placeholder="bitacora-mecal" value="bitacora-mecal">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github-token">Token (opcional para escritura automática):</label>
+                            <input type="password" id="github-token" placeholder="Pega tu token aquí">
+                            <small>Si no agregas token, podrás leer datos pero tendrás que exportar manualmente</small>
+                        </div>
+                    </div>
+
+                    <div id="test-result"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="GitHubDB.probarYGuardarConfig()">
+                        <i class="fas fa-check"></i> Probar y Guardar
+                    </button>
+                    <button class="btn btn-secondary" onclick="GitHubDB.saltarConfiguracion()">
+                        <i class="fas fa-times"></i> Saltar (solo local)
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    },
+
+    async probarYGuardarConfig() {
+        const owner = document.getElementById('github-owner').value.trim();
+        const repo = document.getElementById('github-repo').value.trim();
+        const token = document.getElementById('github-token').value.trim();
+        
+        if (!owner || !repo) {
+            this.mostrarResultadoPrueba('Por favor completa usuario y repositorio', 'error');
+            return;
+        }
+
+        this.mostrarResultadoPrueba('Probando conexión...', 'info');
+
+        try {
+            // Probar acceso de lectura
+            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+            
+            if (!response.ok) {
+                throw new Error(`Repositorio ${owner}/${repo} no encontrado o no es público`);
+            }
+
+            // Si hay token, probar escritura
+            if (token) {
+                const testResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/README.md`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                
+                if (!testResponse.ok) {
+                    throw new Error('Token inválido o sin permisos');
+                }
+            }
+
+            // Guardar configuración exitosa
+            const config = {
+                owner,
+                repo,
+                token: token || null,
+                lastUpdated: new Date().toISOString(),
+                deviceConfigured: navigator.userAgent.substring(0, 50)
+            };
+
+            this.aplicarConfiguracion(config);
+            
+            // Guardar configuración en GitHub para otros dispositivos
+            await this.guardarConfiguracionEnGitHub(config);
+            
+            this.mostrarResultadoPrueba('✅ Configuración guardada exitosamente', 'success');
+            
+            setTimeout(() => {
+                document.querySelector('.modal-overlay').remove();
+                showNotification('GitHub configurado correctamente para todos los dispositivos', 'success');
+                startAutoSync();
+            }, 2000);
+
+        } catch (error) {
+            this.mostrarResultadoPrueba(`❌ Error: ${error.message}`, 'error');
+        }
+    },
+
+    async guardarConfiguracionEnGitHub(config) {
+        if (!config.token) return; // No se puede guardar sin token
+
+        try {
+            const configParaGuardar = {
+                appName: 'Bitácora Producción MECAL',
+                version: '1.0.0',
+                lastUpdated: config.lastUpdated,
+                configuredBy: config.deviceConfigured,
+                hasToken: !!config.token, // No guardar el token real por seguridad
+                syncEnabled: !!config.token
+            };
+
+            const content = btoa(JSON.stringify(configParaGuardar, null, 2));
+            
+            // Verificar si ya existe el archivo
+            let sha = null;
+            try {
+                const existingFile = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${this.configFile}`, {
+                    headers: { 'Authorization': `token ${config.token}` }
+                });
+                if (existingFile.ok) {
+                    const fileData = await existingFile.json();
+                    sha = fileData.sha;
+                }
+            } catch (e) {}
+
+            const payload = {
+                message: 'Configurar sincronización automática de bitácora',
+                content: content,
+                branch: this.branch
+            };
+            
+            if (sha) payload.sha = sha;
+
+            await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${this.configFile}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${config.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+        } catch (error) {
+            console.log('No se pudo guardar configuración en GitHub:', error.message);
+        }
+    },
+
+    saltarConfiguracion() {
+        document.querySelector('.modal-overlay').remove();
+        showNotification('Trabajando en modo local únicamente', 'info');
+        this.actualizarEstadoConexion();
+    },
+
+    mostrarResultadoPrueba(mensaje, tipo) {
+        const resultDiv = document.getElementById('test-result');
+        resultDiv.className = `test-result ${tipo}`;
+        resultDiv.innerHTML = mensaje;
+    },
+
+    actualizarEstadoConexion() {
+        const badge = document.getElementById('github-status');
+        if (badge) {
+            if (this.owner && this.repo) {
+                badge.className = 'status-badge connected';
+                badge.innerHTML = this.token ? 
+                    '<i class="fas fa-sync"></i> Sincronización Activa' : 
+                    '<i class="fas fa-eye"></i> Solo Lectura';
+            } else {
+                badge.className = 'status-badge disconnected';
+                badge.innerHTML = '<i class="fas fa-unlink"></i> Solo Local';
+            }
+        }
+    },
+
+    mostrarConfiguracion() {
+        this.showConfigModal();
+    },
+
+    // Métodos de sincronización de registros
+    async guardarRegistro(registro) {
+        if (!this.token || !this.owner || !this.repo) {
+            console.log('No hay configuración completa para guardar en GitHub');
+            return false;
+        }
+        
+        try {
+            // Subir como archivo individual en carpeta registros/
+            const fileName = `registros/registro-${registro.id}.json`;
+            const content = btoa(JSON.stringify(registro, null, 2));
+            
+            const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${fileName}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${this.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Nuevo registro: ${registro.tipoServicio} - ${registro.fechaServicio}`,
+                    content: content,
+                    branch: this.branch
+                })
+            });
+            
+            return response.ok;
+        } catch (error) {
+            console.error('Error subiendo registro:', error);
+            return false;
+        }
+    },
+
+    async cargarRegistros() {
+        if (!this.owner || !this.repo) return [];
+
+        try {
+            // Cargar desde data.js
+            const dataJsUrl = `https://raw.githubusercontent.com/${this.owner}/${this.repo}/${this.branch}/data.js`;
+            
+            const response = await fetch(dataJsUrl);
+            if (response.ok) {
+                const content = await response.text();
+                
+                // Extraer los registros del archivo data.js usando regex
+                const registrosMatch = content.match(/["']registros["']\s*:\s*(\[[\s\S]*?\])/);
+                if (registrosMatch) {
+                    const registrosJson = registrosMatch[1];
+                    return JSON.parse(registrosJson);
+                }
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('Error cargando desde GitHub:', error);
+            return [];
+        }
+    }
+};
+
+function initializeGitHub() {
+    GitHubDB.init();
 }
 
 function abrirConfiguracionGitHub() {
-    const modal = document.getElementById('github-modal');
-    
-    // Cargar valores actuales
-    document.getElementById('github-owner').value = BitacoraApp.github.owner || '';
-    document.getElementById('github-repo').value = BitacoraApp.github.repo || '';
-    document.getElementById('github-token').value = BitacoraApp.github.token || '';
-    
-    modal.style.display = 'flex';
-    updateGitHubStatus();
+    GitHubDB.mostrarConfiguracion();
 }
 
-function cerrarModalGitHub() {
-    const modal = document.getElementById('github-modal');
-    modal.style.display = 'none';
+function sincronizarManual() {
+    sincronizarConGitHub();
 }
 
-async function testearConexionGitHub() {
-    const owner = document.getElementById('github-owner').value.trim();
-    const repo = document.getElementById('github-repo').value.trim();
-    const token = document.getElementById('github-token').value.trim();
-    
-    if (!owner || !repo) {
-        updateGitHubStatus('error', 'Faltan datos del repositorio');
-        return;
+function startAutoSync() {
+    if (BitacoraApp.syncInterval) {
+        clearInterval(BitacoraApp.syncInterval);
     }
     
-    updateGitHubStatus('connecting', 'Probando conexión...');
-    
-    try {
-        const headers = {};
-        if (token) {
-            headers['Authorization'] = `token ${token}`;
-        }
-        
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-            headers: headers
-        });
-        
-        if (response.ok) {
-            updateGitHubStatus('connected', 'Conexión exitosa');
-        } else if (response.status === 404) {
-            updateGitHubStatus('error', 'Repositorio no encontrado');
-        } else if (response.status === 401) {
-            updateGitHubStatus('error', 'Token inválido o sin permisos');
-        } else {
-            updateGitHubStatus('error', `Error: ${response.status}`);
-        }
-    } catch (error) {
-        updateGitHubStatus('error', 'Error de conexión');
-        console.error('Error testeando GitHub:', error);
+    if (GitHubDB.owner && GitHubDB.repo) {
+        // Sincronizar cada 5 minutos
+        BitacoraApp.syncInterval = setInterval(() => {
+            sincronizarConGitHub();
+        }, 5 * 60 * 1000);
     }
-}
-
-function guardarConfiguracionGitHub() {
-    const owner = document.getElementById('github-owner').value.trim();
-    const repo = document.getElementById('github-repo').value.trim();
-    const token = document.getElementById('github-token').value.trim();
-    
-    if (!owner || !repo) {
-        showNotification('Faltan datos del repositorio', 'error');
-        return;
-    }
-    
-    BitacoraApp.github.owner = owner;
-    BitacoraApp.github.repo = repo;
-    BitacoraApp.github.token = token;
-    BitacoraApp.github.configured = true;
-    
-    // Guardar en localStorage
-    localStorage.setItem('github-config', JSON.stringify(BitacoraApp.github));
-    
-    cerrarModalGitHub();
-    updateHeaderBadge();
-    startAutoSync();
-    
-    showNotification('Configuración de GitHub guardada', 'success');
-}
-
-function updateGitHubStatus(status = '', message = '') {
-    const statusElement = document.getElementById('github-status');
-    
-    if (!status) {
-        if (BitacoraApp.github.configured) {
-            status = 'connected';
-            message = `Conectado a ${BitacoraApp.github.owner}/${BitacoraApp.github.repo}`;
-        } else {
-            status = 'disconnected';
-            message = 'No configurado';
-        }
-    }
-    
-    statusElement.className = `status-indicator ${status}`;
-    statusElement.innerHTML = `<i class="fas fa-circle"></i> <span>${message}</span>`;
-}
-
-function updateHeaderBadge() {
-    // Actualizar badge en el header
-    let existingBadge = document.querySelector('.github-badge');
-    if (existingBadge) {
-        existingBadge.remove();
-    }
-    
-    const header = document.querySelector('.header h1');
-    const badge = document.createElement('span');
-    badge.className = 'github-badge';
-    
-    if (BitacoraApp.github.configured) {
-        badge.className += ' connected';
-        badge.innerHTML = '<i class="fab fa-github"></i> Sincronizado';
-    } else {
-        badge.className += ' local-only';
-        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Solo Local';
-    }
-    
-    header.appendChild(badge);
 }
 
 // ===== SINCRONIZACIÓN =====
 async function sincronizarConGitHub() {
-    if (!BitacoraApp.github.configured) {
+    if (!GitHubDB.owner || !GitHubDB.repo) {
         showNotification('GitHub no configurado', 'warning');
-        abrirConfiguracionGitHub();
+        GitHubDB.mostrarConfiguracion();
         return;
     }
     
@@ -243,7 +485,7 @@ async function sincronizarConGitHub() {
     
     try {
         // 1. Cargar registros desde GitHub
-        const registrosGitHub = await cargarRegistrosDesdeGitHub();
+        const registrosGitHub = await GitHubDB.cargarRegistros();
         
         // 2. Cargar registros locales
         const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
@@ -261,7 +503,7 @@ async function sincronizarConGitHub() {
         
         // 5. Subir registros nuevos
         for (const registro of registrosParaSubir) {
-            await subirRegistroAGitHub(registro);
+            await GitHubDB.guardarRegistro(registro);
         }
         
         // 6. Actualizar localStorage con todos los registros
@@ -284,66 +526,6 @@ async function sincronizarConGitHub() {
     }
 }
 
-async function cargarRegistrosDesdeGitHub() {
-    try {
-        const headers = {};
-        if (BitacoraApp.github.token) {
-            headers['Authorization'] = `token ${BitacoraApp.github.token}`;
-        }
-        
-        // Primero intentar cargar desde data.js
-        const dataJsUrl = `https://raw.githubusercontent.com/${BitacoraApp.github.owner}/${BitacoraApp.github.repo}/${BitacoraApp.github.branch}/data.js`;
-        
-        const response = await fetch(dataJsUrl);
-        if (response.ok) {
-            const content = await response.text();
-            
-            // Extraer los registros del archivo data.js usando regex
-            const registrosMatch = content.match(/["']registros["']\s*:\s*(\[[\s\S]*?\])/);
-            if (registrosMatch) {
-                const registrosJson = registrosMatch[1];
-                return JSON.parse(registrosJson);
-            }
-        }
-        
-        return [];
-    } catch (error) {
-        console.error('Error cargando desde GitHub:', error);
-        return [];
-    }
-}
-
-async function subirRegistroAGitHub(registro) {
-    if (!BitacoraApp.github.token) {
-        console.log('No hay token, no se puede subir');
-        return false;
-    }
-    
-    try {
-        // Subir como archivo individual en carpeta registros/
-        const fileName = `registros/registro-${registro.id}.json`;
-        const content = btoa(JSON.stringify(registro, null, 2));
-        
-        const response = await fetch(`${BitacoraApp.github.apiUrl}/repos/${BitacoraApp.github.owner}/${BitacoraApp.github.repo}/contents/${fileName}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${BitacoraApp.github.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: `Nuevo registro: ${registro.tipoServicio} - ${registro.fechaServicio}`,
-                content: content,
-                branch: BitacoraApp.github.branch
-            })
-        });
-        
-        return response.ok;
-    } catch (error) {
-        console.error('Error subiendo registro:', error);
-        return false;
-    }
-}
-
 function sincronizarManual() {
     sincronizarConGitHub();
 }
@@ -353,7 +535,7 @@ function startAutoSync() {
         clearInterval(BitacoraApp.syncInterval);
     }
     
-    if (BitacoraApp.github.configured) {
+    if (GitHubDB.isConfigured()) {
         // Sincronizar cada 5 minutos
         BitacoraApp.syncInterval = setInterval(() => {
             sincronizarConGitHub();
@@ -604,8 +786,8 @@ function saveRegistro(registro) {
     localStorage.setItem('bitacoraRegistros', JSON.stringify(BitacoraApp.registros));
     
     // Intentar sincronizar con GitHub automáticamente
-    if (BitacoraApp.github.configured) {
-        subirRegistroAGitHub(registro).then(success => {
+    if (GitHubDB.owner && GitHubDB.repo && GitHubDB.token) {
+        GitHubDB.guardarRegistro(registro).then(success => {
             if (success) {
                 showNotification('Registro guardado y sincronizado', 'success');
             } else {
@@ -1015,8 +1197,8 @@ function exportToJSON() {
         ultimaActualizacion: new Date().toISOString(),
         configuracion: {
             repositorio: {
-                owner: BitacoraApp.github.owner || "tu-usuario-github",
-                repo: BitacoraApp.github.repo || "bitacora-mecal",
+                owner: GitHubDB.owner || "tu-usuario-github",
+                repo: GitHubDB.repo || "bitacora-mecal",
                 branch: "main"
             },
             autoSync: true,

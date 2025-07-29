@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Bitácora MECAL</title>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+    <h1>Test de Configuración Centralizada</h1>
+    <div id="status"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusDiv = document.getElementById('status');
+            
+            statusDiv.innerHTML = '<h2>Pruebas de GitHubDB:</h2>';
+            
+            // Test 1: Verificar configuración automática
+            try {
+                await GitHubDB.cargarConfiguracion();
+                statusDiv.innerHTML += `<p>✅ Configuración cargada: ${GitHubDB.owner}/${GitHubDB.repo}</p>`;
+            } catch (error) {
+                statusDiv.innerHTML += `<p>❌ Error cargando configuración: ${error.message}</p>`;
+            }
+            
+            // Test 2: Verificar si está configurado
+            const isConfigured = GitHubDB.isConfigured();
+            statusDiv.innerHTML += `<p>✅ ¿Está configurado?: ${isConfigured}</p>`;
+            
+            // Test 3: Mostrar configuración actual
+            statusDiv.innerHTML += `<p>✅ Owner: ${GitHubDB.owner || 'No configurado'}</p>`;
+            statusDiv.innerHTML += `<p>✅ Repo: ${GitHubDB.repo || 'No configurado'}</p>`;
+            statusDiv.innerHTML += `<p>✅ Token: ${GitHubDB.token ? 'Configurado' : 'No configurado'}</p>`;
+            
+            // Test 4: Probar carga de registros
+            try {
+                const registros = await GitHubDB.cargarRegistros();
+                statusDiv.innerHTML += `<p>✅ Registros cargados: ${registros.length}</p>`;
+            } catch (error) {
+                statusDiv.innerHTML += `<p>⚠️ Error cargando registros: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
