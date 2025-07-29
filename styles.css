@@ -8,6 +8,7 @@
     --dark-color: #2c3e50;
     --light-color: #ecf0f1;
     --white: #ffffff;
+    --gray-50: #f8f9fa;
     --gray-100: #f8f9fa;
     --gray-200: #e9ecef;
     --gray-300: #dee2e6;
@@ -1390,4 +1391,342 @@ body {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     line-height: 1.4;
+}
+
+/* ===== INVENTARIO DE EQUIPOS ===== */
+.inventario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.inventario-header h2 {
+    color: var(--dark-color);
+    margin: 0;
+}
+
+.inventario-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.inventario-filtros {
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.inventario-filtros select,
+.inventario-filtros input {
+    padding: 0.5rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    min-width: 200px;
+}
+
+.inventario-filtros select:focus,
+.inventario-filtros input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+}
+
+.inventario-table-container {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.inventario-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.inventario-table th,
+.inventario-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.inventario-table th {
+    background: var(--gray-100);
+    font-weight: 600;
+    color: var(--gray-700);
+    white-space: nowrap;
+}
+
+.inventario-table tr:hover {
+    background: var(--gray-50);
+}
+
+.inventario-table .equipo-id {
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 60px;
+}
+
+.inventario-table .equipo-nombre {
+    font-weight: 500;
+    min-width: 150px;
+}
+
+.inventario-table .equipo-categoria {
+    min-width: 100px;
+}
+
+.inventario-table .categoria-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.categoria-badge.audio {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.categoria-badge.computadoras {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.categoria-badge.conectividad {
+    background: #e8f5e8;
+    color: #388e3c;
+}
+
+.categoria-badge.internet {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.categoria-badge.video {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.inventario-table .equipo-descripcion {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inventario-table .equipo-acciones {
+    display: flex;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.inventario-table .btn-action {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.inventario-table .btn-edit {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.inventario-table .btn-edit:hover {
+    background: #357abd;
+}
+
+.inventario-table .btn-delete {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+.inventario-table .btn-delete:hover {
+    background: #c82333;
+}
+
+.inventario-empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray-500);
+}
+
+.inventario-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Modal específico para equipos */
+#modal-equipo {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+}
+
+#modal-equipo .modal-content {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-lg);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+#modal-equipo .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+#modal-equipo .modal-header h3 {
+    margin: 0;
+    color: var(--dark-color);
+    font-size: 1.25rem;
+}
+
+#modal-equipo .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-600);
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+#modal-equipo .modal-close:hover {
+    background: var(--gray-200);
+    color: var(--dark-color);
+}
+
+#modal-equipo .modal-body {
+    padding: 1.5rem;
+}
+
+#modal-equipo .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+#modal-equipo .form-group {
+    margin-bottom: 1.25rem;
+}
+
+#modal-equipo .form-group:last-child {
+    margin-bottom: 0;
+}
+
+#modal-equipo .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+#modal-equipo .form-group input,
+#modal-equipo .form-group select,
+#modal-equipo .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+#modal-equipo .form-group input:focus,
+#modal-equipo .form-group select:focus,
+#modal-equipo .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+}
+
+#modal-equipo .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Responsive para inventario */
+@media (max-width: 768px) {
+    .inventario-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .inventario-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .inventario-filtros select,
+    .inventario-filtros input {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .inventario-table-container {
+        overflow-x: auto;
+    }
+    
+    .inventario-table {
+        min-width: 600px;
+    }
+    
+    .inventario-table th,
+    .inventario-table td {
+        padding: 0.5rem;
+    }
+    
+    .inventario-table .equipo-acciones {
+        flex-direction: column;
+    }
 }

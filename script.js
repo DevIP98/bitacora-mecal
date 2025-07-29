@@ -20,8 +20,8 @@ const BitacoraApp = {
     equipos: {
         audio: [
             'microfonos-inalambricos',
-            'microfonos-instalaciones', 
-            'piano-senda'
+            'microfonos-alambricos', 
+            'planta-sonido'
         ],
         computadoras: [
             'cpu-principal',
@@ -29,13 +29,13 @@ const BitacoraApp = {
         ],
         conectividad: [
             'cables-hdmi',
-            'cajas-audio'
+            'cables-audio'
         ],
         internet: [
             'router-wifi'
         ],
         video: [
-            'camara-captura',
+            'camara-celular',
             'tv-1',
             'tv-2'
         ]
@@ -44,14 +44,14 @@ const BitacoraApp = {
     // Nombres amigables para los equipos
     equiposNombres: {
         'microfonos-inalambricos': 'Micrófonos Inalámbricos',
-        'microfonos-instalaciones': 'Micrófonos Instalaciones',
-        'piano-senda': 'Piano de Senda',
+        'microfonos-alambricos': 'Micrófonos Alámbricos',
+        'planta-sonido': 'Planta de Sonido',
         'cpu-principal': 'CPU Principal',
         'monitor-principal': 'Monitor Principal',
         'cables-hdmi': 'Cables HDMI',
-        'cajas-audio': 'Cajas de Audio',
+        'cables-audio': 'Cables de Audio',
         'router-wifi': 'Router WiFi',
-        'camara-captura': 'Cámara de Captura',
+        'camara-celular': 'Cámara de Celular',
         'tv-1': 'TV 1',
         'tv-2': 'TV 2'
     },
@@ -1020,6 +1020,9 @@ function showPage(pageId) {
         case 'historial':
             updateHistorial();
             break;
+        case 'inventario':
+            renderizarInventario();
+            break;
     }
 }
 
@@ -1868,5 +1871,297 @@ function generatePDFReport() {
 function syncToCloud() {
     showNotification('Función de sincronización próximamente disponible', 'info');
 }
+
+// ===== GESTIÓN DE INVENTARIO DE EQUIPOS =====
+
+// Estado inicial del inventario
+BitacoraApp.inventario = [
+    { id: 1, nombre: 'Micrófonos Alámbricos', categoria: 'Audio', descripcion: 'Micrófonos con cable' },
+    { id: 2, nombre: 'Micrófonos Inalámbricos', categoria: 'Audio', descripcion: 'Set de micrófonos inalámbricos' },
+    { id: 3, nombre: 'Planta de Sonido', categoria: 'Audio', descripcion: 'Sistema principal de audio' },
+    { id: 4, nombre: 'CPU Principal', categoria: 'Computadoras', descripcion: 'Computadora principal de control' },
+    { id: 5, nombre: 'Monitor Principal', categoria: 'Computadoras', descripcion: 'Monitor principal de la CPU' },
+    { id: 6, nombre: 'Cables HDMI', categoria: 'Conectividad', descripcion: 'Cables de video HDMI' },
+    { id: 7, nombre: 'Cables de Audio', categoria: 'Conectividad', descripcion: 'Cables de conexión de audio' },
+    { id: 8, nombre: 'Router WiFi', categoria: 'Internet', descripcion: 'Equipo de conexión a internet' },
+    { id: 9, nombre: 'Cámara de Celular', categoria: 'Video', descripcion: 'Cámara principal para transmisión' },
+    { id: 10, nombre: 'TV 1', categoria: 'Video', descripcion: 'Pantalla izquierda del altar' },
+    { id: 11, nombre: 'TV 2', categoria: 'Video', descripcion: 'Pantalla derecha del altar' }
+];
+
+BitacoraApp.equipoEnEdicion = null;
+
+// Función para cargar inventario desde localStorage
+function cargarInventario() {
+    const inventarioGuardado = localStorage.getItem('bitacora-inventario');
+    if (inventarioGuardado) {
+        try {
+            BitacoraApp.inventario = JSON.parse(inventarioGuardado);
+        } catch (error) {
+            console.error('Error al cargar inventario:', error);
+            // Mantener inventario por defecto si hay error
+        }
+    }
+}
+
+// Función para guardar inventario en localStorage
+function guardarInventario() {
+    try {
+        localStorage.setItem('bitacora-inventario', JSON.stringify(BitacoraApp.inventario));
+    } catch (error) {
+        console.error('Error al guardar inventario:', error);
+        showNotification('Error al guardar el inventario', 'error');
+    }
+}
+
+// Función para generar el siguiente ID disponible
+function generarNuevoId() {
+    const maxId = Math.max(...BitacoraApp.inventario.map(item => item.id), 0);
+    return maxId + 1;
+}
+
+// Función para renderizar la tabla de inventario
+function renderizarInventario() {
+    const tbody = document.getElementById('inventario-tbody');
+    if (!tbody) return;
+
+    // Aplicar filtros
+    let inventarioFiltrado = [...BitacoraApp.inventario];
+    
+    const filtroCategoria = document.getElementById('filtro-categoria')?.value;
+    const busqueda = document.getElementById('buscar-equipo')?.value?.toLowerCase();
+    
+    if (filtroCategoria) {
+        inventarioFiltrado = inventarioFiltrado.filter(item => item.categoria === filtroCategoria);
+    }
+    
+    if (busqueda) {
+        inventarioFiltrado = inventarioFiltrado.filter(item => 
+            item.nombre.toLowerCase().includes(busqueda) ||
+            item.descripcion.toLowerCase().includes(busqueda)
+        );
+    }
+
+    // Ordenar por ID
+    inventarioFiltrado.sort((a, b) => a.id - b.id);
+
+    if (inventarioFiltrado.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="inventario-empty">
+                    <i class="fas fa-search"></i>
+                    No se encontraron equipos que coincidan con los filtros
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = inventarioFiltrado.map(item => `
+        <tr>
+            <td class="equipo-id">#${item.id}</td>
+            <td class="equipo-nombre">${item.nombre}</td>
+            <td class="equipo-categoria">
+                <span class="categoria-badge ${item.categoria.toLowerCase()}">${item.categoria}</span>
+            </td>
+            <td class="equipo-descripcion" title="${item.descripcion}">
+                ${item.descripcion}
+            </td>
+            <td class="equipo-acciones">
+                <button class="btn-action btn-edit" onclick="editarEquipo(${item.id})" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-action btn-delete" onclick="eliminarEquipo(${item.id})" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Función para abrir modal de crear/editar equipo
+function abrirModalEquipo(id = null) {
+    const modal = document.getElementById('modal-equipo');
+    const titulo = document.getElementById('modal-equipo-title');
+    const form = document.getElementById('form-equipo');
+    
+    if (!modal || !titulo || !form) return;
+    
+    // Limpiar formulario
+    form.reset();
+    BitacoraApp.equipoEnEdicion = id;
+    
+    if (id) {
+        // Modo edición
+        const equipo = BitacoraApp.inventario.find(item => item.id === id);
+        if (equipo) {
+            titulo.innerHTML = '<i class="fas fa-edit"></i> Editar Equipo';
+            document.getElementById('equipo-nombre').value = equipo.nombre;
+            document.getElementById('equipo-categoria').value = equipo.categoria;
+            document.getElementById('equipo-descripcion').value = equipo.descripcion;
+        }
+    } else {
+        // Modo creación
+        titulo.innerHTML = '<i class="fas fa-plus"></i> Agregar Equipo';
+    }
+    
+    // Mostrar modal instantáneamente
+    modal.style.display = 'flex';
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    // Focus en el primer campo
+    const nombreInput = document.getElementById('equipo-nombre');
+    if (nombreInput) nombreInput.focus();
+}
+
+// Función para cerrar modal de equipo
+function cerrarModalEquipo() {
+    const modal = document.getElementById('modal-equipo');
+    if (modal) {
+        // Cerrar instantáneamente
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        BitacoraApp.equipoEnEdicion = null;
+    }
+}
+
+// Función para guardar equipo (crear o editar)
+function guardarEquipo() {
+    const nombre = document.getElementById('equipo-nombre')?.value?.trim();
+    const categoria = document.getElementById('equipo-categoria')?.value;
+    const descripcion = document.getElementById('equipo-descripcion')?.value?.trim() || '';
+    
+    // Validaciones
+    if (!nombre) {
+        showNotification('El nombre del equipo es obligatorio', 'error');
+        return;
+    }
+    
+    if (!categoria) {
+        showNotification('La categoría es obligatoria', 'error');
+        return;
+    }
+    
+    // Verificar si ya existe un equipo con el mismo nombre (excepto el que se está editando)
+    const existeNombre = BitacoraApp.inventario.some(item => 
+        item.nombre.toLowerCase() === nombre.toLowerCase() && 
+        item.id !== BitacoraApp.equipoEnEdicion
+    );
+    
+    if (existeNombre) {
+        showNotification('Ya existe un equipo con ese nombre', 'error');
+        return;
+    }
+    
+    if (BitacoraApp.equipoEnEdicion) {
+        // Editar equipo existente
+        const index = BitacoraApp.inventario.findIndex(item => item.id === BitacoraApp.equipoEnEdicion);
+        if (index !== -1) {
+            BitacoraApp.inventario[index] = {
+                ...BitacoraApp.inventario[index],
+                nombre,
+                categoria,
+                descripcion
+            };
+            showNotification('Equipo actualizado correctamente', 'success');
+        }
+    } else {
+        // Crear nuevo equipo
+        const nuevoEquipo = {
+            id: generarNuevoId(),
+            nombre,
+            categoria,
+            descripcion
+        };
+        BitacoraApp.inventario.push(nuevoEquipo);
+        showNotification('Equipo agregado correctamente', 'success');
+    }
+    
+    // Guardar en localStorage y actualizar vista
+    guardarInventario();
+    renderizarInventario();
+    cerrarModalEquipo();
+}
+
+// Función para editar equipo
+function editarEquipo(id) {
+    abrirModalEquipo(id);
+}
+
+// Función para eliminar equipo
+function eliminarEquipo(id) {
+    const equipo = BitacoraApp.inventario.find(item => item.id === id);
+    if (!equipo) return;
+    
+    if (confirm(`¿Estás seguro de que deseas eliminar "${equipo.nombre}"?`)) {
+        BitacoraApp.inventario = BitacoraApp.inventario.filter(item => item.id !== id);
+        guardarInventario();
+        renderizarInventario();
+        showNotification('Equipo eliminado correctamente', 'success');
+    }
+}
+
+// Función para filtrar inventario
+function filtrarInventario() {
+    renderizarInventario();
+}
+
+// Función para exportar inventario
+function exportarInventario() {
+    try {
+        const dataStr = JSON.stringify(BitacoraApp.inventario, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `inventario-equipos-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        showNotification('Inventario exportado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al exportar inventario:', error);
+        showNotification('Error al exportar el inventario', 'error');
+    }
+}
+
+// Función para inicializar la página de inventario
+function inicializarInventario() {
+    cargarInventario();
+    renderizarInventario();
+}
+
+// Event listeners para cerrar modal con Escape y click fuera
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModalEquipo();
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('modal-equipo');
+    if (e.target === modal) {
+        cerrarModalEquipo();
+    }
+});
+
+// Event listener para formulario de equipo
+document.addEventListener('DOMContentLoaded', function() {
+    const formEquipo = document.getElementById('form-equipo');
+    if (formEquipo) {
+        formEquipo.addEventListener('submit', function(e) {
+            e.preventDefault();
+            guardarEquipo();
+        });
+    }
+});
+
+// Inicializar inventario cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarInventario();
+});
 
 console.log('Bitácora Producción MECAL - Script cargado correctamente');

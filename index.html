@@ -21,6 +21,9 @@
                 <button class="btn-nav" onclick="showPage('historial')">
                     <i class="fas fa-history"></i> Historial
                 </button>
+                <button class="btn-nav" onclick="showPage('inventario')">
+                    <i class="fas fa-boxes"></i> Inventario
+                </button>
             </nav>
         </div>
     </header>
@@ -97,15 +100,15 @@
                                 </div>
 
                                 <div class="equipment-item">
-                                    <label>Micrófonos Inalámbricos</label>
+                                    <label>Micrófonos Alámbricos</label>
                                     <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-instalaciones" data-status="bueno">
+                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-alambricos" data-status="bueno">
                                             <i class="fas fa-check"></i> Bueno
                                         </button>
-                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-instalaciones" data-status="regular">
+                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-alambricos" data-status="regular">
                                             <i class="fas fa-exclamation-triangle"></i> Regular
                                         </button>
-                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-instalaciones" data-status="malo">
+                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-alambricos" data-status="malo">
                                             <i class="fas fa-times"></i> Malo
                                         </button>
                                     </div>
@@ -113,15 +116,15 @@
                                 </div>
 
                                 <div class="equipment-item">
-                                    <label>Piano de Senda</label>
+                                    <label>Planta de Sonido</label>
                                     <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="audio" data-item="piano-senda" data-status="bueno">
+                                        <button type="button" class="status-btn good" data-category="audio" data-item="planta-sonido" data-status="bueno">
                                             <i class="fas fa-check"></i> Bueno
                                         </button>
-                                        <button type="button" class="status-btn warning" data-category="audio" data-item="piano-senda" data-status="regular">
+                                        <button type="button" class="status-btn warning" data-category="audio" data-item="planta-sonido" data-status="regular">
                                             <i class="fas fa-exclamation-triangle"></i> Regular
                                         </button>
-                                        <button type="button" class="status-btn danger" data-category="audio" data-item="piano-senda" data-status="malo">
+                                        <button type="button" class="status-btn danger" data-category="audio" data-item="planta-sonido" data-status="malo">
                                             <i class="fas fa-times"></i> Malo
                                         </button>
                                     </div>
@@ -189,15 +192,15 @@
                                 </div>
 
                                 <div class="equipment-item">
-                                    <label>Cajas de Audio</label>
+                                    <label>Cables de Audio</label>
                                     <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cajas-audio" data-status="bueno">
+                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-audio" data-status="bueno">
                                             <i class="fas fa-check"></i> Bueno
                                         </button>
-                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cajas-audio" data-status="regular">
+                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-audio" data-status="regular">
                                             <i class="fas fa-exclamation-triangle"></i> Regular
                                         </button>
-                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cajas-audio" data-status="malo">
+                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-audio" data-status="malo">
                                             <i class="fas fa-times"></i> Malo
                                         </button>
                                     </div>
@@ -233,15 +236,15 @@
                             <h4><i class="fas fa-video"></i> Video</h4>
                             <div class="equipment-grid">
                                 <div class="equipment-item">
-                                    <label>Cámara de Captura</label>
+                                    <label>Cámara de Celular</label>
                                     <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="video" data-item="camara-captura" data-status="bueno">
+                                        <button type="button" class="status-btn good" data-category="video" data-item="camara-celular" data-status="bueno">
                                             <i class="fas fa-check"></i> Bueno
                                         </button>
-                                        <button type="button" class="status-btn warning" data-category="video" data-item="camara-captura" data-status="regular">
+                                        <button type="button" class="status-btn warning" data-category="video" data-item="camara-celular" data-status="regular">
                                             <i class="fas fa-exclamation-triangle"></i> Regular
                                         </button>
-                                        <button type="button" class="status-btn danger" data-category="video" data-item="camara-captura" data-status="malo">
+                                        <button type="button" class="status-btn danger" data-category="video" data-item="camara-celular" data-status="malo">
                                             <i class="fas fa-times"></i> Malo
                                         </button>
                                     </div>
@@ -373,6 +376,50 @@
                 <!-- El contenido se genera dinámicamente -->
             </div>
         </div>
+
+        <!-- PÁGINA INVENTARIO -->
+        <div id="page-inventario" class="page">
+            <div class="inventario-header">
+                <h2><i class="fas fa-boxes"></i> Inventario de Equipos</h2>
+                <div class="inventario-actions">
+                    <button class="btn btn-primary" onclick="abrirModalEquipo()">
+                        <i class="fas fa-plus"></i> Agregar Equipo
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportarInventario()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="inventario-filtros">
+                <select id="filtro-categoria" onchange="filtrarInventario()">
+                    <option value="">Todas las categorías</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Computadoras">Computadoras</option>
+                    <option value="Conectividad">Conectividad</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Video">Video</option>
+                </select>
+                <input type="text" id="buscar-equipo" placeholder="Buscar por nombre..." onkeyup="filtrarInventario()">
+            </div>
+
+            <div class="inventario-table-container">
+                <table class="inventario-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventario-tbody">
+                        <!-- El contenido se genera dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <!-- Modal para configuración de GitHub -->
@@ -420,6 +467,43 @@
                 <button class="btn btn-secondary" onclick="cerrarModalGitHub()">Cancelar</button>
                 <button class="btn btn-primary" onclick="testearConexionGitHub()">Probar Conexión</button>
                 <button class="btn btn-success" onclick="guardarConfiguracionGitHub()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTIÓN DE EQUIPOS -->
+    <div id="modal-equipo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
+                <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-equipo">
+                    <div class="form-group">
+                        <label for="equipo-nombre">Nombre del Equipo *</label>
+                        <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
+                    </div>
+                    <div class="form-group">
+                        <label for="equipo-categoria">Categoría *</label>
+                        <select id="equipo-categoria" required>
+                            <option value="">Seleccionar categoría...</option>
+                            <option value="Audio">Audio</option>
+                            <option value="Computadoras">Computadoras</option>
+                            <option value="Conectividad">Conectividad</option>
+                            <option value="Internet">Internet</option>
+                            <option value="Video">Video</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="equipo-descripcion">Descripción</label>
+                        <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
             </div>
         </div>
     </div>
