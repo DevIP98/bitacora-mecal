@@ -7,8 +7,8 @@ const DATOS_BITACORA = {
     "ultimaActualizacion": "2025-07-29T00:00:00.000Z",
     "configuracion": {
         "repositorio": {
-            "owner": "tu-usuario-github", // CAMBIAR por tu usuario de GitHub
-            "repo": "bitacora-mecal",     // CAMBIAR por el nombre de tu repositorio
+            "owner": "DevIP98", // Tu usuario de GitHub
+            "repo": "bitacora-mecal",     // Nombre de tu repositorio
             "branch": "main"
         },
         "autoSync": true,
