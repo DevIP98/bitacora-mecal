@@ -1272,24 +1272,29 @@ function updateDashboard() {
     }
     
     // Obtener el registro más reciente por fecha (no por posición en array)
-    const ultimoRegistro = registros.sort((a, b) => {
-        // Comparar por fecha del servicio primero, luego por fecha de creación
-        const fechaA = new Date(a.fechaServicio + ' ' + (a.horaInicio || '00:00'));
-        const fechaB = new Date(b.fechaServicio + ' ' + (b.horaInicio || '00:00'));
+    const registrosCopia = [...registros]; // Hacer copia para no modificar el original
+    const ultimoRegistro = registrosCopia.sort((a, b) => {
+        // Crear fechas completas para comparación precisa
+        const fechaHoraA = new Date(a.fechaServicio + 'T' + (a.horaInicio || '00:00') + ':00');
+        const fechaHoraB = new Date(b.fechaServicio + 'T' + (b.horaInicio || '00:00') + ':00');
         
-        if (fechaA.getTime() !== fechaB.getTime()) {
-            return fechaB.getTime() - fechaA.getTime(); // Más reciente primero
+        // Si las fechas/horas del servicio son diferentes, usar esas
+        if (fechaHoraA.getTime() !== fechaHoraB.getTime()) {
+            return fechaHoraB.getTime() - fechaHoraA.getTime(); // Más reciente primero
         }
         
-        // Si las fechas de servicio son iguales, usar fecha de creación
-        return new Date(b.fecha) - new Date(a.fecha);
+        // Si las fechas de servicio son exactamente iguales, usar fecha de creación del registro
+        const fechaCreacionA = new Date(a.fecha);
+        const fechaCreacionB = new Date(b.fecha);
+        return fechaCreacionB.getTime() - fechaCreacionA.getTime();
     })[0];
     
     console.log('📊 Dashboard mostrando registro más reciente:', {
         servicio: ultimoRegistro.tipoServicio,
         fecha: ultimoRegistro.fechaServicio,
         hora: ultimoRegistro.horaInicio,
-        responsable: ultimoRegistro.nombreResponsable
+        responsable: ultimoRegistro.nombreResponsable,
+        fechaCompleta: new Date(ultimoRegistro.fechaServicio + 'T' + (ultimoRegistro.horaInicio || '00:00') + ':00').toLocaleString()
     });
     
     // Actualizar estadísticas
