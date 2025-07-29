@@ -1271,8 +1271,26 @@ function updateDashboard() {
         return;
     }
     
-    // Obtener el último registro para mostrar estado actual
-    const ultimoRegistro = registros[registros.length - 1];
+    // Obtener el registro más reciente por fecha (no por posición en array)
+    const ultimoRegistro = registros.sort((a, b) => {
+        // Comparar por fecha del servicio primero, luego por fecha de creación
+        const fechaA = new Date(a.fechaServicio + ' ' + (a.horaInicio || '00:00'));
+        const fechaB = new Date(b.fechaServicio + ' ' + (b.horaInicio || '00:00'));
+        
+        if (fechaA.getTime() !== fechaB.getTime()) {
+            return fechaB.getTime() - fechaA.getTime(); // Más reciente primero
+        }
+        
+        // Si las fechas de servicio son iguales, usar fecha de creación
+        return new Date(b.fecha) - new Date(a.fecha);
+    })[0];
+    
+    console.log('📊 Dashboard mostrando registro más reciente:', {
+        servicio: ultimoRegistro.tipoServicio,
+        fecha: ultimoRegistro.fechaServicio,
+        hora: ultimoRegistro.horaInicio,
+        responsable: ultimoRegistro.nombreResponsable
+    });
     
     // Actualizar estadísticas
     updateDashboardStats(ultimoRegistro);
