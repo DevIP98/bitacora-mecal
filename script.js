@@ -1454,62 +1454,64 @@ function createHistorialItem(registro) {
         });
     });
     
-    // Crear HTML del equipo
-    let equiposHtml = '';
-    Object.entries(registro.equipos || {}).forEach(([categoria, equipos]) => {
-        Object.entries(equipos).forEach(([equipoId, equipoData]) => {
-            const equipoNombre = BitacoraApp.equiposNombres[equipoId];
-            const statusClass = equipoData.estado;
-            const statusIcon = getStatusIcon(equipoData.estado);
-            
-            equiposHtml += `
-                <div class="historial-equipment-item ${statusClass}">
-                    <span>${statusIcon}</span>
-                    <span>${equipoNombre}</span>
-                </div>
-            `;
-        });
-    });
+    const totalEquipos = contadores.bueno + contadores.regular + contadores.malo;
     
+    // Agregar clase CSS según estado general
+    if (contadores.malo > 0) {
+        item.classList.add('has-critical');
+    } else if (contadores.regular > 0) {
+        item.classList.add('has-warnings');
+    } else if (contadores.bueno > 0) {
+        item.classList.add('all-good');
+    }
+    
+    // HTML simplificado - solo información esencial
     item.innerHTML = `
         <div class="historial-item-header">
-            <div>
+            <div class="historial-item-info">
                 <h3 class="historial-item-title">${registro.tipoServicio}</h3>
-                <p class="historial-item-date">${formatDateTime(registro.fecha)}</p>
+                <div class="historial-item-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-calendar"></i> ${formatDate(registro.fechaServicio)}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-clock"></i> ${registro.horaInicio}
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-user"></i> ${registro.nombreResponsable}
+                    </span>
+                </div>
             </div>
-            <div class="historial-actions">
-                <button class="btn btn-secondary" onclick="verDetalleRegistro(${registro.id})">
+            
+            <div class="historial-item-stats">
+                <div class="stats-summary">
+                    ${contadores.bueno > 0 ? `<span class="stat-item stat-good" title="Equipos en buen estado">
+                        <i class="fas fa-check-circle"></i> ${contadores.bueno}
+                    </span>` : ''}
+                    ${contadores.regular > 0 ? `<span class="stat-item stat-warning" title="Equipos con problemas menores">
+                        <i class="fas fa-exclamation-triangle"></i> ${contadores.regular}
+                    </span>` : ''}
+                    ${contadores.malo > 0 ? `<span class="stat-item stat-danger" title="Equipos con problemas graves">
+                        <i class="fas fa-times-circle"></i> ${contadores.malo}
+                    </span>` : ''}
+                    <span class="total-equipos">${totalEquipos} equipo${totalEquipos !== 1 ? 's' : ''}</span>
+                </div>
+                <button class="btn btn-outline" onclick="verDetalleRegistro(${registro.id})" title="Ver información completa">
                     <i class="fas fa-eye"></i> Ver Detalle
                 </button>
             </div>
         </div>
         
-        <div class="historial-item-meta">
-            <div class="meta-item">
-                <i class="fas fa-calendar"></i> ${formatDate(registro.fechaServicio)}
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-clock"></i> ${registro.horaInicio}${registro.horaFinalizacion ? ' - ' + registro.horaFinalizacion : ''}
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-user"></i> ${registro.nombreResponsable}
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-check-circle" style="color: var(--success-color)"></i> ${contadores.bueno}
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-exclamation-triangle" style="color: var(--warning-color)"></i> ${contadores.regular}
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-times-circle" style="color: var(--danger-color)"></i> ${contadores.malo}
-            </div>
-        </div>
-        
-        ${registro.observacionesGenerales ? `<div class="observaciones-generales"><strong>Observaciones:</strong> ${registro.observacionesGenerales}</div>` : ''}
-        
-        <div class="historial-equipment">
-            ${equiposHtml}
-        </div>
+        ${registro.observacionesGenerales ? 
+            `<div class="observaciones-preview">
+                <i class="fas fa-comment"></i> 
+                <span>${registro.observacionesGenerales.length > 60 ? 
+                    registro.observacionesGenerales.substring(0, 60) + '...' : 
+                    registro.observacionesGenerales}
+                </span>
+            </div>` : 
+            ''
+        }
     `;
     
     return item;
