@@ -284,8 +284,9 @@ const GitHubDB = {
                         
                         <div class="form-group">
                             <label for="github-token">Token (requerido para sincronización):</label>
-                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí" ${this.token ? 'value="••••••••••••••••"' : ''}>
+                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí" value="${this.token && this.token.length > 0 ? '••••••••••••••••' : ''}">
                             <small><strong>💡 Crea tu token en: github.com → Settings → Developer settings → Personal access tokens</strong></small>
+                            ${this.token ? '<small style="color: #28a745;">✅ Token ya configurado - déjalo así o pega uno nuevo</small>' : ''}
                         </div>
                         
                         <div class="instrucciones-token">
@@ -394,58 +395,124 @@ const GitHubDB = {
         const repoInput = document.getElementById('github-repo');
         const tokenInput = document.getElementById('github-token');
         
-        const owner = ownerInput ? ownerInput.value.trim() : '';
-        const repo = repoInput ? repoInput.value.trim() : '';
-        const token = tokenInput ? tokenInput.value.trim() : '';
+        // Verificar que los elementos existan
+        if (!ownerInput || !repoInput || !tokenInput) {
+            this.mostrarResultadoPrueba('❌ Error: No se encontraron los campos del formulario', 'error');
+            return;
+        }
         
-        console.log('Configuración a guardar:', { owner, repo, hasToken: !!token });
+        const owner = ownerInput.value.trim();
+        const repo = repoInput.value.trim();
+        let token = tokenInput.value.trim();
         
+        // Si el token son puntos (ya configurado) y no se cambió, usar el existente
+        if (token === '••••••••••••••••' || token.match(/^•+$/)) {
+            token = this.token || ''; // Usar el token existente
+        }
+        
+        console.log('Configuración a guardar:', { 
+            owner, 
+            repo, 
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0 
+        });
+        
+        // Validar campos obligatorios
         if (!owner || !repo) {
-            this.mostrarResultadoPrueba('Por favor completa usuario y repositorio', 'error');
+            this.mostrarResultadoPrueba('❌ Por favor completa usuario y repositorio', 'error');
+            
+            // Resaltar campos vacíos
+            if (!owner) ownerInput.style.borderColor = '#dc3545';
+            if (!repo) repoInput.style.borderColor = '#dc3545';
+            
+            // Remover resaltado después de 3 segundos
+            setTimeout(() => {
+                ownerInput.style.borderColor = '';
+                repoInput.style.borderColor = '';
+            }, 3000);
+            
             return;
         }
 
-        this.mostrarResultadoPrueba('Probando conexión...', 'info');
+        this.mostrarResultadoPrueba('🔍 Probando conexión...', 'info');
 
         try {
-            // Probar acceso de lectura
+            // 1. Probar acceso de lectura al repositorio
+            console.log(`Verificando repositorio: ${owner}/${repo}`);
             const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
             
             if (!response.ok) {
-                throw new Error(`Repositorio ${owner}/${repo} no encontrado o no es público`);
-            }
-
-            // Si hay token, probar escritura
-            if (token) {
-                const testResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/README.md`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                
-                if (!testResponse.ok) {
-                    throw new Error('Token inválido o sin permisos');
+                if (response.status === 404) {
+                    throw new Error(`El repositorio ${owner}/${repo} no existe o no es público`);
+                } else {
+                    throw new Error(`Error ${response.status}: No se puede acceder al repositorio`);
                 }
             }
 
-            // Guardar configuración exitosa
+            const repoData = await response.json();
+            console.log('✅ Repositorio verificado:', repoData.full_name);
+
+            // 2. Si hay token, probar escritura
+            if (token && token.length > 10) { // Validar que sea un token real
+                console.log('🔑 Verificando token...');
+                
+                // Probar con diferentes endpoints para verificar permisos
+                const endpoints = [
+                    `https://api.github.com/repos/${owner}/${repo}/contents/README.md`,
+                    `https://api.github.com/repos/${owner}/${repo}/contents/data.js`,
+                    `https://api.github.com/repos/${owner}/${repo}`
+                ];
+                
+                let tokenValido = false;
+                for (const endpoint of endpoints) {
+                    try {
+                        const testResponse = await fetch(endpoint, {
+                            headers: { 'Authorization': `token ${token}` }
+                        });
+                        
+                        if (testResponse.ok) {
+                            tokenValido = true;
+                            console.log('✅ Token válido para:', endpoint);
+                            break;
+                        }
+                    } catch (e) {
+                        console.log('Probando siguiente endpoint...');
+                    }
+                }
+                
+                if (!tokenValido) {
+                    throw new Error('Token inválido o sin permisos para este repositorio');
+                }
+            }
+
+            // 3. Guardar configuración exitosa
             const config = {
                 owner,
                 repo,
                 token: token || null,
                 lastUpdated: new Date().toISOString(),
-                deviceConfigured: navigator.userAgent.substring(0, 50)
+                deviceConfigured: navigator.userAgent.substring(0, 50),
+                configuredAt: new Date().toLocaleString()
             };
 
-            console.log('Aplicando configuración:', config);
+            console.log('💾 Aplicando configuración:', config);
             this.aplicarConfiguracion(config);
             
-            // Guardar configuración en GitHub para otros dispositivos
+            // 4. Intentar guardar configuración en GitHub (solo si hay token)
             if (token) {
-                await this.guardarConfiguracionEnGitHub(config);
-                this.mostrarResultadoPrueba('✅ Configuración guardada exitosamente y sincronizada', 'success');
+                console.log('☁️ Guardando configuración en GitHub...');
+                try {
+                    await this.guardarConfiguracionEnGitHub(config);
+                    this.mostrarResultadoPrueba('✅ Configuración guardada y sincronizada en todos los dispositivos', 'success');
+                } catch (error) {
+                    console.log('⚠️ No se pudo guardar en GitHub, pero la configuración local está lista');
+                    this.mostrarResultadoPrueba('✅ Configuración guardada localmente (sincronización manual disponible)', 'success');
+                }
             } else {
-                this.mostrarResultadoPrueba('✅ Configuración guardada (modo solo lectura)', 'success');
+                this.mostrarResultadoPrueba('✅ Configuración guardada en modo solo lectura', 'success');
             }
             
+            // 5. Cerrar modal y notificar
             setTimeout(() => {
                 const modalOverlay = document.querySelector('.modal-overlay');
                 if (modalOverlay) {
@@ -453,10 +520,12 @@ const GitHubDB = {
                 }
                 
                 if (token) {
-                    showNotification('GitHub configurado correctamente para todos los dispositivos', 'success');
+                    showNotification('🎉 GitHub configurado correctamente - Sincronización activa', 'success');
                     startAutoSync();
+                    // Ejecutar sincronización inmediata
+                    setTimeout(() => sincronizarConGitHub(), 1000);
                 } else {
-                    showNotification('GitHub configurado en modo lectura - exporta manualmente para sincronizar', 'info');
+                    showNotification('📖 GitHub configurado en modo lectura - Podrás ver datos de otros usuarios', 'info');
                 }
                 
                 // Actualizar la UI
@@ -465,7 +534,19 @@ const GitHubDB = {
             }, 2000);
 
         } catch (error) {
+            console.error('❌ Error en configuración:', error);
             this.mostrarResultadoPrueba(`❌ Error: ${error.message}`, 'error');
+            
+            // Sugerencias específicas según el error
+            if (error.message.includes('repositorio') && error.message.includes('no existe')) {
+                setTimeout(() => {
+                    this.mostrarResultadoPrueba(`💡 Sugerencia: Verifica que el repositorio sea público o que tengas acceso`, 'warning');
+                }, 2000);
+            } else if (error.message.includes('Token')) {
+                setTimeout(() => {
+                    this.mostrarResultadoPrueba(`💡 Sugerencia: Crea un nuevo token con permisos "repo" completos`, 'warning');
+                }, 2000);
+            }
         }
     },
 
