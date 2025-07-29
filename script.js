@@ -250,11 +250,23 @@ const GitHubDB = {
     },
 
     showConfigModal() {
+        // Cerrar modal existente si hay uno
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         
         // Diagnosticar estado actual
         const estadoActual = this.diagnosticarEstado();
+        
+        // Valores por defecto para los campos
+        const ownerValue = this.owner || 'DevIP98';
+        const repoValue = this.repo || 'bitacora-mecal';
+        const tokenValue = this.token && this.token.length > 0 ? '••••••••••••••••' : '';
+        const tokenStatus = this.token ? '<small style="color: #28a745;">✅ Token ya configurado - déjalo así o pega uno nuevo</small>' : '';
         
         modal.innerHTML = `
             <div class="modal-content">
@@ -274,19 +286,19 @@ const GitHubDB = {
                     <div class="config-form">
                         <div class="form-group">
                             <label for="github-owner">Usuario/Organización de GitHub:</label>
-                            <input type="text" id="github-owner" placeholder="DevIP98" value="${this.owner || 'DevIP98'}">
+                            <input type="text" id="github-owner" placeholder="DevIP98" value="${ownerValue}">
                         </div>
                         
                         <div class="form-group">
                             <label for="github-repo">Nombre del Repositorio:</label>
-                            <input type="text" id="github-repo" placeholder="bitacora-mecal" value="${this.repo || 'bitacora-mecal'}">
+                            <input type="text" id="github-repo" placeholder="bitacora-mecal" value="${repoValue}">
                         </div>
                         
                         <div class="form-group">
                             <label for="github-token">Token (requerido para sincronización):</label>
-                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí" value="${this.token && this.token.length > 0 ? '••••••••••••••••' : ''}">
+                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí" value="${tokenValue}">
                             <small><strong>💡 Crea tu token en: github.com → Settings → Developer settings → Personal access tokens</strong></small>
-                            ${this.token ? '<small style="color: #28a745;">✅ Token ya configurado - déjalo así o pega uno nuevo</small>' : ''}
+                            ${tokenStatus}
                         </div>
                         
                         <div class="instrucciones-token">
@@ -320,7 +332,26 @@ const GitHubDB = {
                 </div>
             </div>
         `;
+        
         document.body.appendChild(modal);
+        
+        // Asegurar que los campos tengan valores
+        setTimeout(() => {
+            const ownerInput = document.getElementById('github-owner');
+            const repoInput = document.getElementById('github-repo');
+            
+            if (ownerInput && !ownerInput.value) {
+                ownerInput.value = 'DevIP98';
+            }
+            if (repoInput && !repoInput.value) {
+                repoInput.value = 'bitacora-mecal';
+            }
+            
+            console.log('Modal creado con valores:', {
+                owner: ownerInput ? ownerInput.value : 'no encontrado',
+                repo: repoInput ? repoInput.value : 'no encontrado'
+            });
+        }, 100);
     },
 
     diagnosticarEstado() {
@@ -391,46 +422,66 @@ const GitHubDB = {
     },
 
     async probarYGuardarConfig() {
+        console.log('🔍 Iniciando verificación de configuración...');
+        
+        // Esperar un poco para asegurar que el DOM esté listo
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const ownerInput = document.getElementById('github-owner');
         const repoInput = document.getElementById('github-repo');
         const tokenInput = document.getElementById('github-token');
         
+        console.log('Elementos encontrados:', {
+            ownerInput: !!ownerInput,
+            repoInput: !!repoInput,
+            tokenInput: !!tokenInput
+        });
+        
         // Verificar que los elementos existan
         if (!ownerInput || !repoInput || !tokenInput) {
-            this.mostrarResultadoPrueba('❌ Error: No se encontraron los campos del formulario', 'error');
+            console.error('❌ No se encontraron los campos del formulario');
+            this.mostrarResultadoPrueba('❌ Error: No se encontraron los campos del formulario. Recargando...', 'error');
+            
+            // Intentar recrear el modal
+            setTimeout(() => {
+                this.showConfigModal();
+            }, 2000);
             return;
         }
         
-        const owner = ownerInput.value.trim();
-        const repo = repoInput.value.trim();
-        let token = tokenInput.value.trim();
+        let owner = ownerInput.value ? ownerInput.value.trim() : '';
+        let repo = repoInput.value ? repoInput.value.trim() : '';
+        let token = tokenInput.value ? tokenInput.value.trim() : '';
+        
+        console.log('Valores iniciales:', { owner, repo, tokenLength: token.length });
+        
+        // Si están vacíos, usar valores por defecto
+        if (!owner) {
+            owner = 'DevIP98';
+            ownerInput.value = owner;
+        }
+        if (!repo) {
+            repo = 'bitacora-mecal';
+            repoInput.value = repo;
+        }
         
         // Si el token son puntos (ya configurado) y no se cambió, usar el existente
         if (token === '••••••••••••••••' || token.match(/^•+$/)) {
             token = this.token || ''; // Usar el token existente
+            console.log('Usando token existente');
         }
         
-        console.log('Configuración a guardar:', { 
+        console.log('Configuración final a guardar:', { 
             owner, 
             repo, 
             hasToken: !!token,
             tokenLength: token ? token.length : 0 
         });
         
-        // Validar campos obligatorios
+        // Validar campos obligatorios (ahora con valores por defecto)
         if (!owner || !repo) {
-            this.mostrarResultadoPrueba('❌ Por favor completa usuario y repositorio', 'error');
-            
-            // Resaltar campos vacíos
-            if (!owner) ownerInput.style.borderColor = '#dc3545';
-            if (!repo) repoInput.style.borderColor = '#dc3545';
-            
-            // Remover resaltado después de 3 segundos
-            setTimeout(() => {
-                ownerInput.style.borderColor = '';
-                repoInput.style.borderColor = '';
-            }, 3000);
-            
+            this.mostrarResultadoPrueba('❌ Error interno: No se pudieron establecer usuario y repositorio', 'error');
+            console.error('Error: campos aún vacíos después de establecer valores por defecto');
             return;
         }
 
