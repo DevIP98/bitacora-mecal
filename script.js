@@ -772,22 +772,59 @@ const GitHubDB = {
         if (!this.owner || !this.repo) return [];
 
         try {
-            // Cargar desde data.js
-            const dataJsUrl = `https://raw.githubusercontent.com/${this.owner}/${this.repo}/${this.branch}/data.js`;
+            let registros = [];
             
-            const response = await fetch(dataJsUrl);
-            if (response.ok) {
-                const content = await response.text();
-                
-                // Extraer los registros del archivo data.js usando regex
-                const registrosMatch = content.match(/["']registros["']\s*:\s*(\[[\s\S]*?\])/);
-                if (registrosMatch) {
-                    const registrosJson = registrosMatch[1];
-                    return JSON.parse(registrosJson);
+            // 1. Intentar cargar desde data.js (datos centralizados)
+            try {
+                const dataJsUrl = `https://raw.githubusercontent.com/${this.owner}/${this.repo}/${this.branch}/data.js`;
+                const response = await fetch(dataJsUrl);
+                if (response.ok) {
+                    const content = await response.text();
+                    const registrosMatch = content.match(/["']registros["']\s*:\s*(\[[\s\S]*?\])/);
+                    if (registrosMatch) {
+                        const registrosJson = registrosMatch[1];
+                        registros = JSON.parse(registrosJson);
+                        console.log(`📁 Cargados ${registros.length} registros desde data.js`);
+                        return registros;
+                    }
                 }
+            } catch (e) {
+                console.log('📁 data.js no disponible, intentando carpeta registros/');
             }
             
-            return [];
+            // 2. Si no hay data.js, cargar desde carpeta registros/ individual
+            try {
+                const contentsUrl = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/registros`;
+                const contentsResponse = await fetch(contentsUrl);
+                
+                if (contentsResponse.ok) {
+                    const archivos = await contentsResponse.json();
+                    console.log(`📂 Encontrados ${archivos.length} archivos en carpeta registros/`);
+                    
+                    // Cargar cada archivo de registro
+                    const promesasRegistros = archivos
+                        .filter(archivo => archivo.name.endsWith('.json'))
+                        .map(async (archivo) => {
+                            try {
+                                const archivoResponse = await fetch(archivo.download_url);
+                                if (archivoResponse.ok) {
+                                    return await archivoResponse.json();
+                                }
+                            } catch (error) {
+                                console.log(`⚠️ Error cargando ${archivo.name}:`, error.message);
+                            }
+                            return null;
+                        });
+                    
+                    const registrosIndividuales = await Promise.all(promesasRegistros);
+                    registros = registrosIndividuales.filter(r => r !== null);
+                    console.log(`📊 Cargados ${registros.length} registros desde carpeta registros/`);
+                }
+            } catch (e) {
+                console.log('📂 No se pudo acceder a la carpeta registros/');
+            }
+            
+            return registros;
         } catch (error) {
             console.error('Error cargando desde GitHub:', error);
             return [];
