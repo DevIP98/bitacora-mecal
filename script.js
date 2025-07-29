@@ -108,32 +108,61 @@ const GitHubDB = {
     configFile: 'config.json',
     
     async init() {
+        console.log('🚀 Iniciando GitHubDB...');
+        
         await this.cargarConfiguracion();
         
-        // Si no hay configuración, intentar cargarla desde GitHub
-        if (!this.owner || !this.repo) {
-            const configRemota = await this.intentarCargarConfigRemota();
-            if (configRemota) {
-                this.aplicarConfiguracion(configRemota);
-                showNotification('Configuración cargada automáticamente', 'success');
-            } else {
+        if (this.owner && this.repo) {
+            console.log('✅ Configuración encontrada:', this.owner + '/' + this.repo);
+            
+            // Si no hay token, mostrar modal para configurarlo
+            if (!this.token) {
+                console.log('🔑 Token no configurado - abriendo modal');
                 this.showConfigModal();
+            } else {
+                console.log('🔑 Token configurado - sistema listo');
+                await this.sincronizarConfiguracion();
             }
         } else {
-            // Verificar si hay configuración más reciente en GitHub
-            await this.sincronizarConfiguracion();
+            console.log('⚙️ No hay configuración - abriendo modal inicial');
+            this.showConfigModal();
         }
         
         this.actualizarEstadoConexion();
     },
 
     async cargarConfiguracion() {
+        // 1. Intentar cargar desde localStorage
         const config = localStorage.getItem('github-config');
         if (config) {
             const parsedConfig = JSON.parse(config);
             this.owner = parsedConfig.owner;
             this.repo = parsedConfig.repo;
             this.token = parsedConfig.token;
+            console.log('📱 Configuración cargada desde localStorage');
+            return;
+        }
+
+        // 2. Intentar cargar desde data.js automáticamente
+        try {
+            const datosConfig = obtenerConfiguracion();
+            if (datosConfig && datosConfig.repositorio) {
+                this.owner = datosConfig.repositorio.owner;
+                this.repo = datosConfig.repositorio.repo;
+                console.log('🎯 Configuración automática desde data.js:', this.owner + '/' + this.repo);
+                
+                // Guardar en localStorage para futuras cargas
+                const configToSave = {
+                    owner: this.owner,
+                    repo: this.repo,
+                    token: null,
+                    lastUpdated: new Date().toISOString(),
+                    source: 'auto-detected'
+                };
+                localStorage.setItem('github-config', JSON.stringify(configToSave));
+            }
+        } catch (error) {
+            console.log('ℹ️ No se pudo cargar configuración automática');
         }
     },
 
@@ -223,23 +252,26 @@ const GitHubDB = {
                     <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
                 </div>
                 <div class="modal-body">
-                    <p>Esta configuración se sincronizará automáticamente en todos los dispositivos.</p>
+                    <div class="config-info">
+                        <p><strong>🎯 Sistema iniciado limpio</strong></p>
+                        <p>Esta configuración se sincronizará automáticamente en todos los dispositivos.</p>
+                    </div>
                     
                     <div class="config-form">
                         <div class="form-group">
                             <label for="github-owner">Usuario/Organización de GitHub:</label>
-                            <input type="text" id="github-owner" placeholder="DevIP98" value="DevIP98">
+                            <input type="text" id="github-owner" placeholder="DevIP98" value="${this.owner || 'DevIP98'}">
                         </div>
                         
                         <div class="form-group">
                             <label for="github-repo">Nombre del Repositorio:</label>
-                            <input type="text" id="github-repo" placeholder="bitacora-mecal" value="bitacora-mecal">
+                            <input type="text" id="github-repo" placeholder="bitacora-mecal" value="${this.repo || 'bitacora-mecal'}">
                         </div>
                         
                         <div class="form-group">
-                            <label for="github-token">Token (opcional para escritura automática):</label>
-                            <input type="password" id="github-token" placeholder="Pega tu token aquí">
-                            <small>Si no agregas token, podrás leer datos pero tendrás que exportar manualmente</small>
+                            <label for="github-token">Token (requerido para guardado automático):</label>
+                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí">
+                            <small><strong>⚠️ Sin token solo podrás ver datos existentes</strong></small>
                         </div>
                     </div>
 
@@ -251,7 +283,7 @@ const GitHubDB = {
                         <i class="fas fa-check"></i> Probar y Guardar
                     </button>
                     <button class="btn btn-secondary" onclick="GitHubDB.saltarConfiguracion()">
-                        <i class="fas fa-times"></i> Saltar (solo local)
+                        <i class="fas fa-times"></i> Solo Local
                     </button>
                 </div>
             </div>
@@ -386,6 +418,24 @@ const GitHubDB = {
         } catch (error) {
             console.log('No se pudo guardar configuración en GitHub:', error.message);
         }
+    },
+
+    limpiarTodo() {
+        // Limpiar localStorage
+        localStorage.removeItem('github-config');
+        localStorage.removeItem('bitacoraRegistros');
+        localStorage.removeItem('registros');
+        
+        // Limpiar variables
+        this.owner = null;
+        this.repo = null;
+        this.token = null;
+        
+        console.log('🧹 Sistema limpiado completamente');
+        showNotification('Sistema limpiado - configurar de nuevo', 'info');
+        
+        // Mostrar modal de configuración
+        this.showConfigModal();
     },
 
     saltarConfiguracion() {
@@ -826,9 +876,18 @@ function saveRegistro(registro) {
 }
 
 function loadRegistros() {
-    // Combinar registros locales y de data.js
-    const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
+    // Verificar si data.js está limpio
     const registrosCentrales = typeof obtenerRegistros === 'function' ? obtenerRegistros() : [];
+    
+    if (registrosCentrales.length === 0) {
+        // Sistema limpio - limpiar también localStorage
+        localStorage.removeItem('bitacoraRegistros');
+        console.log('🧹 Sistema iniciado limpio - sin registros');
+        return [];
+    }
+    
+    // Combinar registros locales y centrales solo si hay datos centrales
+    const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
     
     // Combinar y eliminar duplicados
     const todosRegistros = [...registrosCentrales, ...registrosLocales];
