@@ -74,6 +74,13 @@ document.addEventListener('DOMContentLoaded', function() {
     updateDashboard();
     updateHistorial();
     setDefaultValues();
+    
+    // Sincronización inicial después de cargar
+    setTimeout(() => {
+        console.log('🔄 Iniciando sincronización automática...');
+        sincronizarConGitHub();
+    }, 2000); // Esperar 2 segundos para que todo se inicialice
+    
     startAutoSync();
 });
 
@@ -245,6 +252,10 @@ const GitHubDB = {
     showConfigModal() {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
+        
+        // Diagnosticar estado actual
+        const estadoActual = this.diagnosticarEstado();
+        
         modal.innerHTML = `
             <div class="modal-content">
                 <div class="modal-header">
@@ -253,7 +264,10 @@ const GitHubDB = {
                 </div>
                 <div class="modal-body">
                     <div class="config-info">
-                        <p><strong>🎯 Sistema iniciado limpio</strong></p>
+                        <p><strong>🔧 Estado del Sistema:</strong></p>
+                        <div class="diagnostico">
+                            ${estadoActual}
+                        </div>
                         <p>Esta configuración se sincronizará automáticamente en todos los dispositivos.</p>
                     </div>
                     
@@ -269,9 +283,23 @@ const GitHubDB = {
                         </div>
                         
                         <div class="form-group">
-                            <label for="github-token">Token (requerido para guardado automático):</label>
-                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí">
-                            <small><strong>⚠️ Sin token solo podrás ver datos existentes</strong></small>
+                            <label for="github-token">Token (requerido para sincronización):</label>
+                            <input type="password" id="github-token" placeholder="Pega tu token de GitHub aquí" ${this.token ? 'value="••••••••••••••••"' : ''}>
+                            <small><strong>💡 Crea tu token en: github.com → Settings → Developer settings → Personal access tokens</strong></small>
+                        </div>
+                        
+                        <div class="instrucciones-token">
+                            <details>
+                                <summary>📋 ¿Cómo crear un token de GitHub?</summary>
+                                <ol>
+                                    <li>Ve a <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a></li>
+                                    <li>Clic en "Generate new token (classic)"</li>
+                                    <li>Nombre: "Bitacora MECAL"</li>
+                                    <li>Selecciona: <strong>repo</strong> (acceso completo)</li>
+                                    <li>Clic en "Generate token"</li>
+                                    <li>Copia el token y pégalo aquí</li>
+                                </ol>
+                            </details>
                         </div>
                     </div>
 
@@ -283,12 +311,82 @@ const GitHubDB = {
                         <i class="fas fa-check"></i> Probar y Guardar
                     </button>
                     <button class="btn btn-secondary" onclick="GitHubDB.saltarConfiguracion()">
-                        <i class="fas fa-times"></i> Solo Local
+                        <i class="fas fa-times"></i> Continuar Sin Sincronización
+                    </button>
+                    <button class="btn btn-info" onclick="GitHubDB.sincronizarSinToken()">
+                        <i class="fas fa-download"></i> Solo Descargar Datos
                     </button>
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
+    },
+
+    diagnosticarEstado() {
+        const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
+        const config = JSON.parse(localStorage.getItem('github-config') || '{}');
+        
+        let diagnostico = '<ul>';
+        
+        if (this.owner && this.repo) {
+            diagnostico += `<li>✅ Repositorio: ${this.owner}/${this.repo}</li>`;
+        } else {
+            diagnostico += '<li>❌ No hay repositorio configurado</li>';
+        }
+        
+        if (this.token) {
+            diagnostico += '<li>✅ Token configurado (sincronización activa)</li>';
+        } else {
+            diagnostico += '<li>⚠️ Sin token (solo lectura)</li>';
+        }
+        
+        diagnostico += `<li>📊 Registros locales: ${registrosLocales.length}</li>`;
+        
+        if (config.lastUpdated) {
+            const fecha = new Date(config.lastUpdated).toLocaleString();
+            diagnostico += `<li>🕒 Última configuración: ${fecha}</li>`;
+        }
+        
+        diagnostico += '</ul>';
+        return diagnostico;
+    },
+
+    async sincronizarSinToken() {
+        this.mostrarResultadoPrueba('Descargando datos existentes...', 'info');
+        
+        try {
+            // Cargar solo datos desde GitHub sin token
+            const registrosGitHub = await this.cargarRegistros();
+            
+            if (registrosGitHub.length > 0) {
+                // Combinar con registros locales
+                const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
+                const todosRegistros = [...registrosGitHub, ...registrosLocales];
+                const registrosUnicos = todosRegistros.filter((registro, index, self) => 
+                    index === self.findIndex(r => r.id === registro.id)
+                );
+                
+                localStorage.setItem('bitacoraRegistros', JSON.stringify(registrosUnicos));
+                BitacoraApp.registros = registrosUnicos;
+                
+                updateDashboard();
+                updateHistorial();
+                
+                this.mostrarResultadoPrueba(`✅ ${registrosGitHub.length} registros descargados exitosamente`, 'success');
+                
+                setTimeout(() => {
+                    const modalOverlay = document.querySelector('.modal-overlay');
+                    if (modalOverlay) modalOverlay.remove();
+                    showNotification('Datos descargados - Para guardar nuevos registros necesitas configurar un token', 'info');
+                }, 2000);
+                
+            } else {
+                this.mostrarResultadoPrueba('ℹ️ No se encontraron datos en GitHub', 'info');
+            }
+            
+        } catch (error) {
+            this.mostrarResultadoPrueba(`❌ Error descargando: ${error.message}`, 'error');
+        }
     },
 
     async probarYGuardarConfig() {
@@ -457,14 +555,48 @@ const GitHubDB = {
         const badge = document.getElementById('github-status');
         if (badge) {
             if (this.owner && this.repo) {
-                badge.className = 'status-badge connected';
-                badge.innerHTML = this.token ? 
-                    '<i class="fas fa-sync"></i> Sincronización Activa' : 
-                    '<i class="fas fa-eye"></i> Solo Lectura';
+                if (this.token) {
+                    badge.className = 'status-badge connected';
+                    badge.innerHTML = '<i class="fas fa-sync"></i> Sincronización Activa';
+                } else {
+                    badge.className = 'status-badge warning';
+                    badge.innerHTML = '<i class="fas fa-download"></i> Solo Descarga';
+                }
             } else {
                 badge.className = 'status-badge disconnected';
                 badge.innerHTML = '<i class="fas fa-unlink"></i> Solo Local';
             }
+        }
+        
+        // Actualizar también cualquier indicador adicional
+        this.actualizarIndicadoresSistema();
+    },
+
+    actualizarIndicadoresSistema() {
+        // Mostrar información en consola para diagnóstico
+        console.log('🔧 Estado GitHubDB:', {
+            configurado: this.isConfigured(),
+            owner: this.owner,
+            repo: this.repo,
+            tieneToken: !!this.token,
+            url: this.owner && this.repo ? `https://github.com/${this.owner}/${this.repo}` : null
+        });
+        
+        // Verificar registros locales vs remotos
+        const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
+        console.log('📊 Registros locales:', registrosLocales.length);
+        
+        // Si no hay token pero hay registros locales, mostrar aviso
+        if (!this.token && registrosLocales.length > 0 && this.isConfigured()) {
+            const tiempoEspera = 5000; // 5 segundos
+            setTimeout(() => {
+                if (!this.token) { // Verificar de nuevo por si se configuró
+                    showNotification(
+                        `Tienes ${registrosLocales.length} registros locales. Configura tu token para sincronizarlos.`, 
+                        'warning'
+                    );
+                }
+            }, tiempoEspera);
         }
     },
 
@@ -545,35 +677,57 @@ function sincronizarManual() {
 
 // ===== SINCRONIZACIÓN =====
 async function sincronizarConGitHub() {
+    // Verificar configuración básica
     if (!GitHubDB.owner || !GitHubDB.repo) {
-        showNotification('GitHub no configurado', 'warning');
-        GitHubDB.mostrarConfiguracion();
-        return;
+        showNotification('GitHub no configurado - Configurando automáticamente...', 'warning');
+        await GitHubDB.init(); // Reintentar configuración automática
+        
+        if (!GitHubDB.owner || !GitHubDB.repo) {
+            GitHubDB.mostrarConfiguracion();
+            return;
+        }
     }
     
     showSyncIndicator('syncing', 'Sincronizando...');
     
     try {
-        // 1. Cargar registros desde GitHub
+        // 1. Cargar registros desde GitHub (no requiere token)
+        console.log('📥 Descargando registros desde GitHub...');
         const registrosGitHub = await GitHubDB.cargarRegistros();
+        console.log(`📊 Encontrados ${registrosGitHub.length} registros en GitHub`);
         
         // 2. Cargar registros locales
         const registrosLocales = JSON.parse(localStorage.getItem('bitacoraRegistros') || '[]');
+        console.log(`💾 Registros locales: ${registrosLocales.length}`);
         
         // 3. Combinar y eliminar duplicados
         const todosRegistros = [...registrosGitHub, ...registrosLocales];
         const registrosUnicos = todosRegistros.filter((registro, index, self) => 
             index === self.findIndex(r => r.id === registro.id)
         );
+        console.log(`🔄 Total después de combinar: ${registrosUnicos.length}`);
         
         // 4. Identificar registros nuevos para subir
         const registrosParaSubir = registrosLocales.filter(local => 
             !registrosGitHub.some(github => github.id === local.id)
         );
+        console.log(`⬆️ Registros para subir: ${registrosParaSubir.length}`);
         
-        // 5. Subir registros nuevos
-        for (const registro of registrosParaSubir) {
-            await GitHubDB.guardarRegistro(registro);
+        // 5. Subir registros nuevos (solo si hay token)
+        let subidosExitosamente = 0;
+        if (GitHubDB.token && registrosParaSubir.length > 0) {
+            console.log('🚀 Subiendo registros nuevos...');
+            for (const registro of registrosParaSubir) {
+                const exito = await GitHubDB.guardarRegistro(registro);
+                if (exito) {
+                    subidosExitosamente++;
+                    console.log(`✅ Registro ${registro.id} subido`);
+                } else {
+                    console.log(`❌ Error subiendo registro ${registro.id}`);
+                }
+            }
+        } else if (!GitHubDB.token && registrosParaSubir.length > 0) {
+            console.log('⚠️ Hay registros nuevos pero no hay token para subirlos');
         }
         
         // 6. Actualizar localStorage con todos los registros
@@ -585,13 +739,25 @@ async function sincronizarConGitHub() {
         updateHistorial();
         
         BitacoraApp.lastSyncTime = new Date();
-        showSyncIndicator('success', 'Sincronización completada');
         
-        setTimeout(() => hideSyncIndicator(), 3000);
+        // 8. Mostrar resultado
+        let mensaje = `Sincronización completada: ${registrosUnicos.length} registros totales`;
+        if (registrosGitHub.length > 0) {
+            mensaje += `, ${registrosGitHub.length} descargados`;
+        }
+        if (subidosExitosamente > 0) {
+            mensaje += `, ${subidosExitosamente} subidos`;
+        }
+        if (!GitHubDB.token && registrosParaSubir.length > 0) {
+            mensaje += ` (${registrosParaSubir.length} pendientes de subir - necesitas token)`;
+        }
+        
+        showSyncIndicator('success', mensaje);
+        setTimeout(() => hideSyncIndicator(), 5000);
         
     } catch (error) {
         console.error('Error sincronizando:', error);
-        showSyncIndicator('error', 'Error en sincronización');
+        showSyncIndicator('error', `Error en sincronización: ${error.message}`);
         setTimeout(() => hideSyncIndicator(), 5000);
     }
 }

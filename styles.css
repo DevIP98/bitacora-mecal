@@ -964,6 +964,71 @@ body {
     padding: 12px 20px;
 }
 
+/* ===== NUEVOS ESTILOS PARA DIAGNÓSTICO ===== */
+.diagnostico {
+    background: var(--gray-100);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-left: 4px solid var(--primary-color);
+}
+
+.diagnostico ul {
+    list-style: none;
+    margin: 0;
+}
+
+.diagnostico li {
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.instrucciones-token {
+    margin-top: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.instrucciones-token details {
+    cursor: pointer;
+}
+
+.instrucciones-token summary {
+    font-weight: 600;
+    color: var(--primary-color);
+    padding: 0.5rem 0;
+}
+
+.instrucciones-token ol {
+    margin: 1rem 0 0 1.5rem;
+    color: var(--gray-700);
+}
+
+.instrucciones-token li {
+    margin: 0.5rem 0;
+}
+
+.instrucciones-token a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.instrucciones-token a:hover {
+    text-decoration: underline;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    border: none;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #138496, #0f6674);
+    transform: translateY(-2px);
+}
+
 /* ===== INDICADORES DE SINCRONIZACIÓN ===== */
 .sync-indicator {
     position: fixed;
@@ -1031,6 +1096,32 @@ body {
 }
 
 /* ===== BADGES DE ESTADO ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.status-badge.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
 .github-badge {
     display: inline-flex;
     align-items: center;
@@ -1050,6 +1141,11 @@ body {
 .github-badge.disconnected {
     background: #f8d7da;
     color: #721c24;
+}
+
+.github-badge.warning {
+    background: #fff3cd;
+    color: #856404;
 }
 
 .github-badge.local-only {
