@@ -1,12 +1,6 @@
 # 📋 Bitácora Producción MECAL
 
 Sistema web de bitácora para registrar y monitorear el estado de equipos audiovisuales en servicios religiosos.
-
-## 🚀 Características
-
-- ✅ **Sin base de datos** - Funciona completamente en el navegador
-- 📱 **Responsive** - Se adapta a móviles y escritorio
-- 🔄 **Colaborativo** - Sincronización automática con GitHub
 - 📊 **Dashboard** - Vista en tiempo real del estado de equipos
 - 📈 **Historial** - Registro completo de todos los servicios
 - 🎨 **Interfaz moderna** - Diseño profesional y fácil de usar
