@@ -63,12 +63,14 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 20px;
+    position: relative; /* Añadido para el posicionamiento absoluto del menú */
 }
 
 .header h1 {
     color: var(--dark-color);
     font-size: 1.8rem;
     font-weight: 700;
+    flex-shrink: 0; /* Evita que el título se encoja */
 }
 
 .header h1 i {
@@ -76,7 +78,7 @@ body {
     margin-right: 10px;
 }
 
-.header nav {
+.nav-menu {
     display: flex;
     gap: 10px;
 }
@@ -103,6 +105,39 @@ body {
 
 .btn-nav.active {
     background: var(--dark-color);
+}
+
+/* Estilos para el menú móvil */
+.mobile-menu-toggle {
+    display: none; /* Oculto en escritorio */
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1010;
+}
+
+.mobile-menu-toggle span {
+    width: 30px;
+    height: 3px;
+    background-color: var(--dark-color);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
 }
 
 /* ===== PÁGINAS ===== */
@@ -1693,6 +1728,106 @@ body {
 #modal-equipo .form-group textarea {
     min-height: 80px;
     resize: vertical;
+}
+
+/* ===== MEDIA QUERIES PARA RESPONSIVE DESIGN ===== */
+
+/* Dispositivos medianos (tablets) */
+@media (max-width: 768px) {
+    .header .container {
+        justify-content: center; /* Centra el título cuando el menú está colapsado */
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        /* width: 100%; ya no es necesario */
+        text-align: center;
+        /* margin-bottom: 1rem; ya no es necesario */
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 20px;
+    }
+
+    .nav-menu {
+        display: none;
+        flex-direction: column;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        right: -250px;
+        height: 100vh; /* Ocupa toda la altura de la ventana */
+        background: var(--white);
+        padding-top: 60px;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        transition: right 0.3s ease;
+        z-index: 1000;
+    }
+
+    .nav-menu.active {
+        display: flex;
+        right: 0;
+    }
+    
+    .mobile-menu-overlay.active {
+        display: block;
+    }
+
+    .btn-nav {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 12px 20px; /* Reducido para botones menos altos */
+        border-radius: 0;
+        border-bottom: 1px solid var(--gray-200);
+        background-color: var(--primary-color); /* Asegura color de fondo consistente */
+        color: var(--white);
+        font-size: 0.95rem; /* Tamaño de fuente ajustado para móvil */
+    }
+
+    .btn-nav:hover {
+        background-color: var(--secondary-color); /* Efecto hover también en móvil */
+    }
+
+    .mobile-menu-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+    }
+    .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .mobile-menu-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+}
+
+/* Dispositivos pequeños (móviles) */
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.2rem;
+    }
+
+    .form-header {
+        padding: 1.5rem;
+    }
+
+    .form-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .bitacora-form {
+        padding: 1.5rem;
+    }
+
+    .equipment-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Responsive para inventario */

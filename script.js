@@ -2103,65 +2103,55 @@ function eliminarEquipo(id) {
     }
 }
 
-// Función para filtrar inventario
-function filtrarInventario() {
-    renderizarInventario();
-}
+/* ===== FUNCIONES PARA MENÚ MÓVIL ===== */
+function toggleMobileMenu() {
+    const navMenu = document.getElementById('navMenu');
+    const toggleButton = document.querySelector('.mobile-menu-toggle');
+    const overlay = document.getElementById('mobileMenuOverlay');
 
-// Función para exportar inventario
-function exportarInventario() {
-    try {
-        const dataStr = JSON.stringify(BitacoraApp.inventario, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `inventario-equipos-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        showNotification('Inventario exportado correctamente', 'success');
-    } catch (error) {
-        console.error('Error al exportar inventario:', error);
-        showNotification('Error al exportar el inventario', 'error');
+    const isActive = navMenu.classList.contains('active');
+
+    if (isActive) {
+        closeMobileMenu();
+    } else {
+        openMobileMenu();
     }
 }
 
-// Función para inicializar la página de inventario
-function inicializarInventario() {
-    cargarInventario();
-    renderizarInventario();
+function openMobileMenu() {
+    const navMenu = document.getElementById('navMenu');
+    const toggleButton = document.querySelector('.mobile-menu-toggle');
+    const overlay = document.getElementById('mobileMenuOverlay');
+
+    navMenu.classList.add('active');
+    toggleButton.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Evita scroll del fondo
 }
 
-// Event listeners para cerrar modal con Escape y click fuera
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        cerrarModalEquipo();
+function closeMobileMenu() {
+    const navMenu = document.getElementById('navMenu');
+    const toggleButton = document.querySelector('.mobile-menu-toggle');
+    const overlay = document.getElementById('mobileMenuOverlay');
+
+    navMenu.classList.remove('active');
+    toggleButton.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = ''; // Restaura scroll
+}
+
+// Cierra el menú si se presiona la tecla Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('navMenu').classList.contains('active')) {
+        closeMobileMenu();
     }
 });
 
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('modal-equipo');
-    if (e.target === modal) {
-        cerrarModalEquipo();
+// Modificar showPage para cerrar el menú móvil al cambiar de página
+const originalShowPage = showPage;
+showPage = function(pageId) {
+    originalShowPage(pageId);
+    if (document.getElementById('navMenu').classList.contains('active')) {
+        closeMobileMenu();
     }
-});
-
-// Event listener para formulario de equipo
-document.addEventListener('DOMContentLoaded', function() {
-    const formEquipo = document.getElementById('form-equipo');
-    if (formEquipo) {
-        formEquipo.addEventListener('submit', function(e) {
-            e.preventDefault();
-            guardarEquipo();
-        });
-    }
-});
-
-// Inicializar inventario cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    inicializarInventario();
-});
-
-console.log('Bitácora Producción MECAL - Script cargado correctamente');
+};
