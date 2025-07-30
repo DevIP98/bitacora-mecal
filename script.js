@@ -63,7 +63,20 @@ const BitacoraApp = {
         conectividad: 'fas fa-wifi',
         internet: 'fas fa-globe',
         video: 'fas fa-video'
-    }
+    },
+    
+    // Tipos de servicio por defecto
+    tiposServicio: [
+        'Servicio Familiar Domingo AM',
+        'Servicio Familiar Domingo PM',
+        'Servicio Energy Plus',
+        'Servicio de Parejas',
+        'Servicio de ADR',
+        'Congreso la Reforma',        
+        'Servicio Especial',
+        'Ayuno',
+        'Ensayo'
+    ]
 };
 
 // ===== INICIALIZACIÓN =====
@@ -74,6 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
     updateDashboard();
     updateHistorial();
     setDefaultValues();
+    
+    // Cargar inventario
+    cargarInventario();
+    renderizarInventario();
     
     // Sincronización inicial después de cargar
     setTimeout(() => {
@@ -93,6 +110,9 @@ function initializeApp() {
     const now = new Date();
     const timeString = now.toTimeString().slice(0, 5);
     document.getElementById('horaInicio').value = timeString;
+    
+    // Cargar tipos de servicio
+    cargarTiposServicio();
     
     // Configurar eventos del formulario
     setupFormEvents();
@@ -1039,6 +1059,27 @@ function setupFormEvents() {
     document.getElementById('rolResponsable').addEventListener('change', function() {
         localStorage.setItem('ultimoRol', this.value);
     });
+    
+    // Event listener para crear nuevo tipo de servicio
+    const tipoServicioSelect = document.getElementById('tipoServicio');
+    if (tipoServicioSelect) {
+        tipoServicioSelect.addEventListener('change', function() {
+            if (this.value === '__NUEVO__') {
+                agregarNuevoTipoServicio();
+            }
+        });
+    }
+    
+    // Event listener para agregar tipo con Enter en el modal
+    const inputNuevoTipo = document.getElementById('nuevo-tipo-servicio');
+    if (inputNuevoTipo) {
+        inputNuevoTipo.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                agregarTipoDesdeModal();
+            }
+        });
+    }
 }
 
 function setupNavigationEvents() {
@@ -1872,6 +1913,226 @@ function syncToCloud() {
     showNotification('Función de sincronización próximamente disponible', 'info');
 }
 
+// ===== GESTIÓN DE TIPOS DE SERVICIO =====
+
+// Función para cargar tipos de servicio desde localStorage
+function cargarTiposServicio() {
+    const tiposGuardados = localStorage.getItem('bitacora-tipos-servicio');
+    if (tiposGuardados) {
+        try {
+            BitacoraApp.tiposServicio = JSON.parse(tiposGuardados);
+        } catch (error) {
+            console.error('Error al cargar tipos de servicio:', error);
+            // Mantener tipos por defecto si hay error
+        }
+    }
+    actualizarSelectTiposServicio();
+}
+
+// Función para guardar tipos de servicio en localStorage
+function guardarTiposServicio() {
+    localStorage.setItem('bitacora-tipos-servicio', JSON.stringify(BitacoraApp.tiposServicio));
+}
+
+// Función para actualizar los selects de tipos de servicio
+function actualizarSelectTiposServicio() {
+    // Actualizar select principal del formulario
+    const selectPrincipal = document.getElementById('tipoServicio');
+    if (selectPrincipal) {
+        const valorActual = selectPrincipal.value;
+        selectPrincipal.innerHTML = '<option value="">Seleccionar...</option>';
+        
+        BitacoraApp.tiposServicio.forEach(tipo => {
+            const option = document.createElement('option');
+            option.value = tipo;
+            option.textContent = tipo;
+            selectPrincipal.appendChild(option);
+        });
+        
+        // Agregar opción para crear nuevo tipo
+        const optionNuevo = document.createElement('option');
+        optionNuevo.value = '__NUEVO__';
+        optionNuevo.textContent = '+ Crear nuevo tipo de servicio...';
+        optionNuevo.style.fontStyle = 'italic';
+        optionNuevo.style.color = '#007bff';
+        selectPrincipal.appendChild(optionNuevo);
+        
+        // Restaurar valor si existía
+        if (valorActual && BitacoraApp.tiposServicio.includes(valorActual)) {
+            selectPrincipal.value = valorActual;
+        }
+    }
+    
+    // Actualizar select del filtro de historial
+    const selectFiltro = document.getElementById('filter-servicio');
+    if (selectFiltro) {
+        const valorFiltro = selectFiltro.value;
+        selectFiltro.innerHTML = '<option value="">Todos los servicios</option>';
+        
+        BitacoraApp.tiposServicio.forEach(tipo => {
+            const option = document.createElement('option');
+            option.value = tipo;
+            option.textContent = tipo;
+            selectFiltro.appendChild(option);
+        });
+        
+        // Restaurar valor del filtro si existía
+        if (valorFiltro && BitacoraApp.tiposServicio.includes(valorFiltro)) {
+            selectFiltro.value = valorFiltro;
+        }
+    }
+}
+
+// Función para agregar nuevo tipo de servicio
+function agregarNuevoTipoServicio() {
+    const nuevoTipo = prompt('Ingresa el nombre del nuevo tipo de servicio:');
+    if (!nuevoTipo || !nuevoTipo.trim()) {
+        return;
+    }
+    
+    const tipoLimpio = nuevoTipo.trim();
+    
+    // Verificar que no exista ya
+    if (BitacoraApp.tiposServicio.includes(tipoLimpio)) {
+        showNotification('Este tipo de servicio ya existe', 'warning');
+        return;
+    }
+    
+    // Agregar el nuevo tipo
+    BitacoraApp.tiposServicio.push(tipoLimpio);
+    guardarTiposServicio();
+    actualizarSelectTiposServicio();
+    
+    // Seleccionar el nuevo tipo automáticamente
+    const selectPrincipal = document.getElementById('tipoServicio');
+    if (selectPrincipal) {
+        selectPrincipal.value = tipoLimpio;
+    }
+    
+    showNotification(`Tipo de servicio "${tipoLimpio}" agregado correctamente`, 'success');
+}
+
+// Función para eliminar tipo de servicio
+function eliminarTipoServicio(tipoServicio) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar "${tipoServicio}"?`)) {
+        return;
+    }
+    
+    BitacoraApp.tiposServicio = BitacoraApp.tiposServicio.filter(tipo => tipo !== tipoServicio);
+    guardarTiposServicio();
+    actualizarSelectTiposServicio();
+    
+    // Actualizar la lista del modal si está abierto
+    const modal = document.getElementById('modal-tipos-servicio');
+    if (modal && modal.style.display === 'flex') {
+        actualizarListaTiposServicio();
+    }
+    
+    showNotification(`Tipo de servicio "${tipoServicio}" eliminado`, 'success');
+}
+
+// Función para mostrar modal de gestión de tipos de servicio
+function mostrarGestionTiposServicio() {
+    const modal = document.getElementById('modal-tipos-servicio');
+    if (!modal) return;
+    
+    actualizarListaTiposServicio();
+    
+    // Mostrar modal instantáneamente
+    modal.style.display = 'flex';
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    // Event listener para cerrar al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            cerrarModalTiposServicio();
+        }
+    });
+    
+    // Focus en el input para agregar nuevo tipo
+    setTimeout(() => {
+        const input = document.getElementById('nuevo-tipo-servicio');
+        if (input) input.focus();
+    }, 100);
+}
+
+// Función para cerrar modal de tipos de servicio
+function cerrarModalTiposServicio() {
+    const modal = document.getElementById('modal-tipos-servicio');
+    if (modal) {
+        // Cerrar instantáneamente
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Limpiar el input
+        const input = document.getElementById('nuevo-tipo-servicio');
+        if (input) input.value = '';
+    }
+}
+
+// Función para actualizar la lista de tipos en el modal
+function actualizarListaTiposServicio() {
+    const lista = document.getElementById('tipos-servicio-list');
+    if (!lista) return;
+    
+    lista.innerHTML = '';
+    
+    if (BitacoraApp.tiposServicio.length === 0) {
+        lista.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">No hay tipos de servicio configurados</p>';
+        return;
+    }
+    
+    BitacoraApp.tiposServicio.forEach(tipo => {
+        const item = document.createElement('div');
+        item.className = 'tipo-servicio-item';
+        item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; margin-bottom: 0.5rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #dee2e6;';
+        
+        item.innerHTML = `
+            <span style="font-weight: 500;">${tipo}</span>
+            <button class="btn btn-danger btn-sm" onclick="eliminarTipoServicio('${tipo.replace(/'/g, '\\\'')}')" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        
+        lista.appendChild(item);
+    });
+}
+
+// Función para agregar tipo desde el modal
+function agregarTipoDesdeModal() {
+    const input = document.getElementById('nuevo-tipo-servicio');
+    if (!input) return;
+    
+    const nuevoTipo = input.value.trim();
+    if (!nuevoTipo) {
+        showNotification('Ingresa un nombre para el tipo de servicio', 'warning');
+        input.focus();
+        return;
+    }
+    
+    // Verificar que no exista ya
+    if (BitacoraApp.tiposServicio.includes(nuevoTipo)) {
+        showNotification('Este tipo de servicio ya existe', 'warning');
+        input.focus();
+        input.select();
+        return;
+    }
+    
+    // Agregar el nuevo tipo
+    BitacoraApp.tiposServicio.push(nuevoTipo);
+    guardarTiposServicio();
+    actualizarSelectTiposServicio();
+    actualizarListaTiposServicio();
+    
+    // Limpiar input
+    input.value = '';
+    input.focus();
+    
+    showNotification(`Tipo de servicio "${nuevoTipo}" agregado correctamente`, 'success');
+}
+
 // ===== GESTIÓN DE INVENTARIO DE EQUIPOS =====
 
 // Estado inicial del inventario
@@ -2142,8 +2403,22 @@ function closeMobileMenu() {
 
 // Cierra el menú si se presiona la tecla Escape
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('navMenu').classList.contains('active')) {
-        closeMobileMenu();
+    if (e.key === 'Escape') {
+        if (document.getElementById('navMenu').classList.contains('active')) {
+            closeMobileMenu();
+        }
+        
+        // Cerrar modal de tipos de servicio con Escape
+        const modalTiposServicio = document.getElementById('modal-tipos-servicio');
+        if (modalTiposServicio && modalTiposServicio.style.display === 'flex') {
+            cerrarModalTiposServicio();
+        }
+        
+        // Cerrar modal de equipos con Escape
+        const modalEquipo = document.getElementById('modal-equipo');
+        if (modalEquipo && modalEquipo.style.display === 'flex') {
+            cerrarModalEquipo();
+        }
     }
 });
 

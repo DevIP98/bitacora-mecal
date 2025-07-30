@@ -56,14 +56,15 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="tipoServicio">Tipo de Servicio *</label>
-                                <select id="tipoServicio" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="Servicio Domingo AM">Servicio Domingo AM</option>
-                                    <option value="Servicio Domingo PM">Servicio Domingo PM</option>
-                                    <option value="Servicio Miércoles">Servicio Miércoles</option>
-                                    <option value="Evento Especial">Evento Especial</option>
-                                    <option value="Ensayo">Ensayo</option>
-                                </select>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <select id="tipoServicio" required style="flex: 1;">
+                                        <option value="">Seleccionar...</option>
+                                        <!-- Las opciones se cargan dinámicamente desde JavaScript -->
+                                    </select>
+                                    <button type="button" class="btn btn-outline btn-sm" onclick="mostrarGestionTiposServicio()" title="Gestionar tipos de servicio">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="fechaServicio">Fecha del Servicio *</label>
@@ -362,11 +363,7 @@
                     <input type="date" id="filter-fecha" placeholder="Filtrar por fecha">
                     <select id="filter-servicio">
                         <option value="">Todos los servicios</option>
-                        <option value="Servicio Domingo AM">Servicio Domingo AM</option>
-                        <option value="Servicio Domingo PM">Servicio Domingo PM</option>
-                        <option value="Servicio Miércoles">Servicio Miércoles</option>
-                        <option value="Evento Especial">Evento Especial</option>
-                        <option value="Ensayo">Ensayo</option>
+                        <!-- Las opciones se cargan dinámicamente desde JavaScript -->
                     </select>
                     <button class="btn btn-secondary" onclick="exportToJSON()">
                         <i class="fas fa-download"></i> Exportar
@@ -511,6 +508,32 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
                 <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
+    <div id="modal-tipos-servicio" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
+                <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tipos-servicio-list" id="tipos-servicio-list">
+                    <!-- Lista se genera dinámicamente -->
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
+                        <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
             </div>
         </div>
     </div>

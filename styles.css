@@ -1122,6 +1122,42 @@ body {
     padding: 12px 20px;
 }
 
+/* ===== ESTILOS PARA TIPOS DE SERVICIO ===== */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    min-width: auto;
+}
+
+.tipo-servicio-item {
+    transition: all 0.2s ease;
+}
+
+.tipo-servicio-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tipos-servicio-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Modal específico para tipos de servicio */
+#modal-tipos-servicio .modal-body {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#modal-tipos-servicio .tipos-servicio-list:empty::after {
+    content: "No hay tipos de servicio configurados";
+    display: block;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
+}
+
 /* ===== NUEVOS ESTILOS PARA DIAGNÓSTICO ===== */
 .diagnostico {
     background: var(--gray-100);
@@ -1615,6 +1651,36 @@ body {
 
 /* Modal específico para equipos */
 #modal-equipo {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal específico para tipos de servicio */
+#modal-tipos-servicio {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilos generales para modales con clase .modal */
+.modal {
     display: none;
     position: fixed;
     z-index: 1000;
