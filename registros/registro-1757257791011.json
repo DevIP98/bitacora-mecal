@@ -1,0 +1,67 @@
+{
+  "id": 1757257791011,
+  "fecha": "2025-09-07T15:09:51.011Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2025-09-07",
+  "horaInicio": "08:00",
+  "horaFinalizacion": "10:10",
+  "observacionesGenerales": "Sin novedad durante el servicio, no se puso a funcionar un micrófono porque tiene problema de conexión en el puerto de entrada. No en la planta, sino en el cuerpo del micrófono. ",
+  "nombreResponsable": "Miguel Orozco",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "regular",
+        "observaciones": "Baterías agotadas."
+      },
+      "microfonos-alambricos": {
+        "estado": "regular",
+        "observaciones": "1 micrófono no operativo por condiciones de mantenimiento en el puerto del micrófono. CANAL 1  "
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
