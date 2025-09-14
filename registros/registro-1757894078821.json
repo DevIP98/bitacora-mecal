@@ -1,0 +1,67 @@
+{
+  "id": 1757894078821,
+  "fecha": "2025-09-14T23:54:38.821Z",
+  "tipoServicio": "Servicio Familiar Domingo PM",
+  "fechaServicio": "2025-09-14",
+  "horaInicio": "17:00",
+  "horaFinalizacion": "18:55",
+  "observacionesGenerales": "La servidora Margie, no pudo cumplir con el servicio porque tuvo un corte accidental en el brazo y salió hacia el hospital a realizar sutura. Por ende la cubre el líder Miguel y el líder Iván en intercalas.\n\nNECESITAMOS COMPRAR BATERIAS NUEVAS.",
+  "nombreResponsable": "Miguel Orozco",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "regular",
+        "observaciones": "QUEDAN SIN BATERÍAS LOS MICRÓFONOS."
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
