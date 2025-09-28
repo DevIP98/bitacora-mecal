@@ -1,0 +1,67 @@
+{
+  "id": 1759096567777,
+  "fecha": "2025-09-28T21:56:07.777Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2025-09-28",
+  "horaInicio": "08:20",
+  "horaFinalizacion": "10:20",
+  "observacionesGenerales": "Servicio con normalidad, al llegar tuvimos un inconveniente con el cable de audio del parlante izquierdo, el líder ivan me ayudo a repararlo con un poco de cinta. y se logro utilizar en el servicio, del resto todo bien. ",
+  "nombreResponsable": "Scarlet Caruci",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "regular",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "regular",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "regular",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
