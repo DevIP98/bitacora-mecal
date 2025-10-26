@@ -1,0 +1,63 @@
+{
+  "id": 1761523127822,
+  "fecha": "2025-10-26T23:58:47.822Z",
+  "tipoServicio": "Servicio Familiar Domingo PM",
+  "fechaServicio": "2025-10-26",
+  "horaInicio": "17:00",
+  "horaFinalizacion": "18:46",
+  "observacionesGenerales": "el bafle del lado de la bateria no esta sonando y hace corto",
+  "nombreResponsable": "Margie Villarruel",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "regular",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "regular",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "regular",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
