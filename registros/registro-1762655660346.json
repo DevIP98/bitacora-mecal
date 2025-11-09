@@ -1,0 +1,57 @@
+{
+  "id": 1762655660346,
+  "fecha": "2025-11-09T02:34:20.346Z",
+  "tipoServicio": "REUNION DE LIDERAZGO",
+  "fechaServicio": "2025-11-08",
+  "horaInicio": "20:20",
+  "horaFinalizacion": "21:00",
+  "observacionesGenerales": "TODO OK, CON NORMALIDAD. 2 LINEAS DE BATERIA EL OTRO CON 3.",
+  "nombreResponsable": "Ivan Pineda",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
