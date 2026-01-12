@@ -1,0 +1,35 @@
+{
+  "id": 1768176952835,
+  "fecha": "2026-01-12T00:15:52.835Z",
+  "tipoServicio": "Servicio Familiar Domingo PM",
+  "fechaServicio": "2026-01-11",
+  "horaInicio": "17:05",
+  "horaFinalizacion": "19:09",
+  "observacionesGenerales": "Servicio de la tarde, hizo un bajo de luz, la plata se apago y no logramos que volviera a encender, los instrumentos no se utilizaron debido a esto, las voces cantaron a acapela, luego logramos conectar el parlante pequeño a un micrófono y por Bluetooth para colocar las alabanzas, y que el pastor pudiera predicar con micrófono.. Gracias a Dios logramos culminar el servicio con solo ese parlante. no se volvió a encender la planta, se desconecto y se dejo allí tranquila, debido a los apagones hizo varios jalones fuertes la planta, se desconectaron los micrófonos inalámbricos y así quedaron. también quedaron bastantes cables regados debido a todo el movimiento que hizo para lograr hacer funcionar algo para el servicio. ",
+  "nombreResponsable": "Scarlet Caruci",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
