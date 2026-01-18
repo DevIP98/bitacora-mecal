@@ -1,0 +1,67 @@
+{
+  "id": 1768779954638,
+  "fecha": "2026-01-18T23:45:54.638Z",
+  "tipoServicio": "Servicio Familiar Domingo PM",
+  "fechaServicio": "2026-01-18",
+  "horaInicio": "05:00",
+  "horaFinalizacion": "18:45",
+  "observacionesGenerales": "todo bien, ninguna anomalia  ",
+  "nombreResponsable": "elienner orense",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
