@@ -1,0 +1,67 @@
+{
+  "id": 1771773285890,
+  "fecha": "2026-02-22T15:14:45.890Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2026-02-22",
+  "horaInicio": "08:00",
+  "horaFinalizacion": "10:13",
+  "observacionesGenerales": "Servicio con normalidad. Note que uno de los micrófonos tiene hundido el cuadrito donde marca. lo hice saber por medio del grupo de producción, al parecer regreso así de el retiro de lideres. ",
+  "nombreResponsable": "Scarlet Caruci",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
