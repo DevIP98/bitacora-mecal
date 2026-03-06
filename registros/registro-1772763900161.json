@@ -1,0 +1,67 @@
+{
+  "id": 1772763900161,
+  "fecha": "2026-03-06T02:25:00.161Z",
+  "tipoServicio": "Congreso Afirmadas 2026",
+  "fechaServicio": "2026-03-05",
+  "horaInicio": "19:10",
+  "horaFinalizacion": "21:24",
+  "observacionesGenerales": "Micrófonos con 2 líneas de carga, sonido irregular.",
+  "nombreResponsable": "Ivan Pineda",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "regular",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "regular",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
