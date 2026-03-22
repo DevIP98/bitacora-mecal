@@ -1,0 +1,67 @@
+{
+  "id": 1774191720440,
+  "fecha": "2026-03-22T15:02:00.440Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2026-03-22",
+  "horaInicio": "08:00",
+  "horaFinalizacion": "09:57",
+  "observacionesGenerales": "-INDICARLE A LOS CORISTAS QUE CANTEN UN POPQUITO MAS DURO, ESTABAN AL MAXIMO LOS VOLUEMEN.\n-cables RCA sonido (blanco y rojo) en falla.",
+  "nombreResponsable": "Ivan Pineda",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
