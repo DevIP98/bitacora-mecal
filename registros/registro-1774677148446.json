@@ -1,0 +1,63 @@
+{
+  "id": 1774677148446,
+  "fecha": "2026-03-28T05:52:28.446Z",
+  "tipoServicio": "Vigilia",
+  "fechaServicio": "2026-03-28",
+  "horaInicio": "21:00",
+  "horaFinalizacion": "00:51",
+  "observacionesGenerales": "1 micro sin baterías. en la casa tengo par. recordarme traerlo.",
+  "nombreResponsable": "Ivan Pineda",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
