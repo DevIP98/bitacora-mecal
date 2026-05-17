@@ -1,0 +1,67 @@
+{
+  "id": 1779029562318,
+  "fecha": "2026-05-17T14:52:42.318Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2026-05-17",
+  "horaInicio": "08:00",
+  "horaFinalizacion": "10:10",
+  "observacionesGenerales": "",
+  "nombreResponsable": "Elienner Orense",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
