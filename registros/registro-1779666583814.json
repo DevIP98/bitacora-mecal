@@ -1,0 +1,67 @@
+{
+  "id": 1779666583814,
+  "fecha": "2026-05-24T23:49:43.814Z",
+  "tipoServicio": "Servicio Familiar Domingo PM",
+  "fechaServicio": "2026-05-24",
+  "horaInicio": "17:00",
+  "horaFinalizacion": "18:55",
+  "observacionesGenerales": "Servicio Familiar Domingo PM",
+  "nombreResponsable": "Álvaro Enrique Machado Hernandez",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": "antes del culto se presentaron algunas caidas del internet, durante el culto no hubo inconvenientes."
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": "No aplica"
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
