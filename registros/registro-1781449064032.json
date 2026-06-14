@@ -1,0 +1,67 @@
+{
+  "id": 1781449064032,
+  "fecha": "2026-06-14T14:57:44.032Z",
+  "tipoServicio": "Servicio Familiar Domingo AM",
+  "fechaServicio": "2026-06-14",
+  "horaInicio": "08:10",
+  "horaFinalizacion": "09:56",
+  "observacionesGenerales": "todo bien en orden ",
+  "nombreResponsable": "juan sebastian rincon ",
+  "rolResponsable": "Servidor",
+  "equipos": {
+    "audio": {
+      "microfonos-inalambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "microfonos-alambricos": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "planta-sonido": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "computadoras": {
+      "cpu-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "monitor-principal": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "conectividad": {
+      "cables-hdmi": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "cables-audio": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "internet": {
+      "router-wifi": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    },
+    "video": {
+      "camara-celular": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-1": {
+        "estado": "bueno",
+        "observaciones": ""
+      },
+      "tv-2": {
+        "estado": "bueno",
+        "observaciones": ""
+      }
+    }
+  }
+}
