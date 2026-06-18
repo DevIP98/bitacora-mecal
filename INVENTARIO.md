@@ -6,7 +6,7 @@ Nueva funcionalidad agregada al sistema de bitácora que permite gestionar un in
 ## Características
 
 ### ✨ Funcionalidades Principales
-- **Visualización de Inventario**: Tabla con todos los equipos organizados por ID, nombre, categoría y descripción
+- **Visualización de Inventario**: Tabla con todos los equipos organizados por ID, nombre, categoría, cantidad y descripción
 - **Gestión CRUD**: Crear, editar y eliminar equipos
 - **Filtros**: Por categoría y búsqueda por texto
 - **Exportación**: Descargar inventario en formato JSON

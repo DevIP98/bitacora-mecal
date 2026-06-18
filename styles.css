@@ -1559,6 +1559,11 @@ body {
     min-width: 100px;
 }
 
+.inventario-table .equipo-cantidad {
+    min-width: 80px;
+    font-weight: 500;
+}
+
 .inventario-table .categoria-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
@@ -1919,7 +1924,7 @@ body {
     }
     
     .inventario-table {
-        min-width: 600px;
+        min-width: 700px;
     }
     
     .inventario-table th,

@@ -2137,17 +2137,17 @@ function agregarTipoDesdeModal() {
 
 // Estado inicial del inventario
 BitacoraApp.inventario = [
-    { id: 1, nombre: 'Micrófonos Alámbricos', categoria: 'Audio', descripcion: 'Micrófonos con cable' },
-    { id: 2, nombre: 'Micrófonos Inalámbricos', categoria: 'Audio', descripcion: 'Set de micrófonos inalámbricos' },
-    { id: 3, nombre: 'Planta de Sonido', categoria: 'Audio', descripcion: 'Sistema principal de audio' },
-    { id: 4, nombre: 'CPU Principal', categoria: 'Computadoras', descripcion: 'Computadora principal de control' },
-    { id: 5, nombre: 'Monitor Principal', categoria: 'Computadoras', descripcion: 'Monitor principal de la CPU' },
-    { id: 6, nombre: 'Cables HDMI', categoria: 'Conectividad', descripcion: 'Cables de video HDMI' },
-    { id: 7, nombre: 'Cables de Audio', categoria: 'Conectividad', descripcion: 'Cables de conexión de audio' },
-    { id: 8, nombre: 'Router WiFi', categoria: 'Internet', descripcion: 'Equipo de conexión a internet' },
-    { id: 9, nombre: 'Cámara de Celular', categoria: 'Video', descripcion: 'Cámara principal para transmisión' },
-    { id: 10, nombre: 'TV 1', categoria: 'Video', descripcion: 'Pantalla izquierda del altar' },
-    { id: 11, nombre: 'TV 2', categoria: 'Video', descripcion: 'Pantalla derecha del altar' }
+    { id: 1, nombre: 'Micrófonos Alámbricos', categoria: 'Audio', cantidad: 1, descripcion: 'Micrófonos con cable' },
+    { id: 2, nombre: 'Micrófonos Inalámbricos', categoria: 'Audio', cantidad: 1, descripcion: 'Set de micrófonos inalámbricos' },
+    { id: 3, nombre: 'Planta de Sonido', categoria: 'Audio', cantidad: 1, descripcion: 'Sistema principal de audio' },
+    { id: 4, nombre: 'CPU Principal', categoria: 'Computadoras', cantidad: 1, descripcion: 'Computadora principal de control' },
+    { id: 5, nombre: 'Monitor Principal', categoria: 'Computadoras', cantidad: 1, descripcion: 'Monitor principal de la CPU' },
+    { id: 6, nombre: 'Cables HDMI', categoria: 'Conectividad', cantidad: 1, descripcion: 'Cables de video HDMI' },
+    { id: 7, nombre: 'Cables de Audio', categoria: 'Conectividad', cantidad: 1, descripcion: 'Cables de conexión de audio' },
+    { id: 8, nombre: 'Router WiFi', categoria: 'Internet', cantidad: 1, descripcion: 'Equipo de conexión a internet' },
+    { id: 9, nombre: 'Cámara de Celular', categoria: 'Video', cantidad: 1, descripcion: 'Cámara principal para transmisión' },
+    { id: 10, nombre: 'TV 1', categoria: 'Video', cantidad: 1, descripcion: 'Pantalla izquierda del altar' },
+    { id: 11, nombre: 'TV 2', categoria: 'Video', cantidad: 1, descripcion: 'Pantalla derecha del altar' }
 ];
 
 BitacoraApp.equipoEnEdicion = null;
@@ -2209,7 +2209,7 @@ function renderizarInventario() {
     if (inventarioFiltrado.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="inventario-empty">
+                <td colspan="6" class="inventario-empty">
                     <i class="fas fa-search"></i>
                     No se encontraron equipos que coincidan con los filtros
                 </td>
@@ -2225,6 +2225,7 @@ function renderizarInventario() {
             <td class="equipo-categoria">
                 <span class="categoria-badge ${item.categoria.toLowerCase()}">${item.categoria}</span>
             </td>
+            <td class="equipo-cantidad">${item.cantidad || 1}</td>
             <td class="equipo-descripcion" title="${item.descripcion}">
                 ${item.descripcion}
             </td>
@@ -2259,11 +2260,14 @@ function abrirModalEquipo(id = null) {
             titulo.innerHTML = '<i class="fas fa-edit"></i> Editar Equipo';
             document.getElementById('equipo-nombre').value = equipo.nombre;
             document.getElementById('equipo-categoria').value = equipo.categoria;
+            document.getElementById('equipo-cantidad').value = equipo.cantidad || 1;
             document.getElementById('equipo-descripcion').value = equipo.descripcion;
         }
     } else {
         // Modo creación
         titulo.innerHTML = '<i class="fas fa-plus"></i> Agregar Equipo';
+        const cantidadInput = document.getElementById('equipo-cantidad');
+        if (cantidadInput) cantidadInput.value = 1;
     }
     
     // Mostrar modal instantáneamente
@@ -2292,6 +2296,7 @@ function cerrarModalEquipo() {
 function guardarEquipo() {
     const nombre = document.getElementById('equipo-nombre')?.value?.trim();
     const categoria = document.getElementById('equipo-categoria')?.value;
+    const cantidad = parseInt(document.getElementById('equipo-cantidad')?.value || '1', 10);
     const descripcion = document.getElementById('equipo-descripcion')?.value?.trim() || '';
     
     // Validaciones
@@ -2302,6 +2307,11 @@ function guardarEquipo() {
     
     if (!categoria) {
         showNotification('La categoría es obligatoria', 'error');
+        return;
+    }
+
+    if (isNaN(cantidad) || cantidad < 1) {
+        showNotification('La cantidad debe ser un número válido mayor o igual a 1', 'error');
         return;
     }
     
@@ -2324,6 +2334,7 @@ function guardarEquipo() {
                 ...BitacoraApp.inventario[index],
                 nombre,
                 categoria,
+                cantidad,
                 descripcion
             };
             showNotification('Equipo actualizado correctamente', 'success');
@@ -2334,6 +2345,7 @@ function guardarEquipo() {
             id: generarNuevoId(),
             nombre,
             categoria,
+            cantidad,
             descripcion
         };
         BitacoraApp.inventario.push(nuevoEquipo);
@@ -2362,6 +2374,24 @@ function eliminarEquipo(id) {
         renderizarInventario();
         showNotification('Equipo eliminado correctamente', 'success');
     }
+}
+
+// Función para exportar el inventario de equipos a JSON
+function exportarInventario() {
+    if (BitacoraApp.inventario.length === 0) {
+        showNotification('No hay equipos en el inventario para exportar', 'warning');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(BitacoraApp.inventario, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `inventario-mecal-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    showNotification('Inventario exportado exitosamente', 'success');
 }
 
 /* ===== FUNCIONES PARA MENÚ MÓVIL ===== */
