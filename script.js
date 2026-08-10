@@ -81,31 +81,52 @@ const BitacoraApp = {
 
 // ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', async function() {
+    // Detect current page by unique container IDs
+    const isRegistroPage   = !!document.getElementById('bitacoraForm');
+    const isDashboardPage  = !!document.getElementById('page-dashboard');
+    const isHistorialPage  = !!document.getElementById('page-historial');
+    const isInventarioPage = !!document.getElementById('inventario-tbody');
+
+    // Always initialize UI basics
     initializeApp();
-    
-    // Mostrar indicador de carga
-    showNotification('Conectando a Supabase...', 'info');
-    
-    // Cargar registros
-    const registros = await SupabaseDB.cargarRegistros();
-    if (registros) BitacoraApp.registros = registros;
-    
-    updateDashboard();
-    updateHistorial();
-    setDefaultValues();
-    
-    // Cargar inventario
-    const inv = await SupabaseDB.cargarInventario();
-    if (inv) BitacoraApp.inventario = inv;
-    renderizarInventario();
-    
-    // Cargar tipos de servicio
-    const tipos = await SupabaseDB.cargarTiposServicio();
-    if (tipos && tipos.length > 0) BitacoraApp.tiposServicio = tipos;
-    actualizarSelectTiposServicio();
-    
-    showNotification('Datos cargados correctamente', 'success');
+
+    try {
+        // ── REGISTRO PAGE ──────────────────────────────────────────────
+        if (isRegistroPage) {
+            const tipos = await SupabaseDB.cargarTiposServicio();
+            if (tipos && tipos.length > 0) BitacoraApp.tiposServicio = tipos;
+            actualizarSelectTiposServicio();
+            setDefaultValues();
+        }
+
+        // ── DASHBOARD PAGE ─────────────────────────────────────────────
+        if (isDashboardPage) {
+            const registros = await SupabaseDB.cargarRegistros();
+            if (registros) BitacoraApp.registros = registros;
+            updateDashboard();
+        }
+
+        // ── HISTORIAL PAGE ─────────────────────────────────────────────
+        if (isHistorialPage) {
+            const registros = await SupabaseDB.cargarRegistros();
+            if (registros) BitacoraApp.registros = registros;
+            updateHistorial();
+        }
+
+        // ── INVENTARIO PAGE ────────────────────────────────────────────
+        if (isInventarioPage) {
+            const inv = await SupabaseDB.cargarInventario();
+            if (inv) BitacoraApp.inventario = inv;
+            renderizarInventario();
+        }
+
+        showNotification('Datos cargados correctamente', 'success');
+    } catch (err) {
+        console.error('Error en carga de datos:', err);
+        showNotification('Error al cargar datos', 'error');
+    }
 });
+
 
 function initializeApp() {
     // Configurar fecha por defecto
