@@ -10,49 +10,50 @@ const SupabaseDB = {
     // ----------------------
     async cargarRegistros() {
         try {
-            // Obtenemos todos los registros, ordenados por fecha de creación descendente
+            // Usamos un JOIN para obtener registros con sus equipos en una sola query
+            // Esto evita el límite de 1000 filas en la tabla equipos_estado
             const { data: registros, error: errorRegistros } = await supabaseClient
                 .from('registros')
-                .select('*')
+                .select(`
+                    *,
+                    equipos_estado (
+                        categoria,
+                        equipo,
+                        estado,
+                        observaciones
+                    )
+                `)
                 .order('created_at', { ascending: false });
 
             if (errorRegistros) throw errorRegistros;
 
-            // Obtenemos todos los estados de equipos
-            const { data: equiposEstado, error: errorEquipos } = await supabaseClient
-                .from('equipos_estado')
-                .select('*');
+            // Transformamos los datos al formato esperado por el frontend
+            const registrosCompletos = registros.map(registro => {
+                // Agrupar equipos por categoría
+                const equiposPorCategoria = {};
+                (registro.equipos_estado || []).forEach(eq => {
+                    if (!equiposPorCategoria[eq.categoria]) {
+                        equiposPorCategoria[eq.categoria] = {};
+                    }
+                    equiposPorCategoria[eq.categoria][eq.equipo] = {
+                        estado: eq.estado,
+                        observaciones: eq.observaciones
+                    };
+                });
 
-            if (errorEquipos) throw errorEquipos;
-
-            // Agrupamos los equipos por registro_id
-            const equiposPorRegistro = {};
-            equiposEstado.forEach(equipo => {
-                if (!equiposPorRegistro[equipo.registro_id]) {
-                    equiposPorRegistro[equipo.registro_id] = {};
-                }
-                if (!equiposPorRegistro[equipo.registro_id][equipo.categoria]) {
-                    equiposPorRegistro[equipo.registro_id][equipo.categoria] = {};
-                }
-                equiposPorRegistro[equipo.registro_id][equipo.categoria][equipo.equipo] = {
-                    estado: equipo.estado,
-                    observaciones: equipo.observaciones
+                return {
+                    id: registro.id,
+                    fecha: registro.fecha,
+                    tipoServicio: registro.tipo_servicio,
+                    fechaServicio: registro.fecha_servicio,
+                    horaInicio: registro.hora_inicio,
+                    horaFinalizacion: registro.hora_finalizacion,
+                    observacionesGenerales: registro.observaciones_generales,
+                    nombreResponsable: registro.nombre_responsable,
+                    rolResponsable: registro.rol_responsable,
+                    equipos: equiposPorCategoria
                 };
             });
-
-            // Combinamos los datos
-            const registrosCompletos = registros.map(registro => ({
-                id: registro.id,
-                fecha: registro.fecha,
-                tipoServicio: registro.tipo_servicio,
-                fechaServicio: registro.fecha_servicio,
-                horaInicio: registro.hora_inicio,
-                horaFinalizacion: registro.hora_finalizacion,
-                observacionesGenerales: registro.observaciones_generales,
-                nombreResponsable: registro.nombre_responsable,
-                rolResponsable: registro.rol_responsable,
-                equipos: equiposPorRegistro[registro.id] || {}
-            }));
 
             return registrosCompletos;
         } catch (error) {
