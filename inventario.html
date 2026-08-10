@@ -1,0 +1,120 @@
+<main class="main-content">
+        <div id="page-inventario" class="page active">
+            <div class="inventario-header">
+                <h2><i class="fas fa-boxes"></i> Inventario de Equipos</h2>
+                <div class="inventario-actions">
+                    <button class="btn btn-primary" onclick="abrirModalEquipo()">
+                        <i class="fas fa-plus"></i> Agregar Equipo
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportarInventario()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="inventario-filtros">
+                <select id="filtro-categoria" onchange="filtrarInventario()">
+                    <option value="">Todas las categorías</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Computadoras">Computadoras</option>
+                    <option value="Conectividad">Conectividad</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Video">Video</option>
+                </select>
+                <input type="text" id="buscar-equipo" placeholder="Buscar por nombre..." onkeyup="filtrarInventario()">
+            </div>
+
+            <div class="inventario-table-container">
+                <table class="inventario-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventario-tbody">
+                        <!-- El contenido se genera dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </main>
+
+
+
+    <!-- MODAL GESTIÓN DE EQUIPOS -->
+    <div id="modal-equipo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
+                <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-equipo">
+                    <div class="form-group">
+                        <label for="equipo-nombre">Nombre del Equipo *</label>
+                        <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
+                    </div>
+                    <div class="form-group">
+                        <label for="equipo-categoria">Categoría *</label>
+                        <select id="equipo-categoria" required>
+                            <option value="">Seleccionar categoría...</option>
+                            <option value="Audio">Audio</option>
+                            <option value="Computadoras">Computadoras</option>
+                            <option value="Conectividad">Conectividad</option>
+                            <option value="Internet">Internet</option>
+                            <option value="Video">Video</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="equipo-cantidad">Cantidad *</label>
+                        <input type="number" id="equipo-cantidad" required min="1" value="1" placeholder="Ej: 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="equipo-descripcion">Descripción</label>
+                        <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
+    <div id="modal-tipos-servicio" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
+                <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="tipos-servicio-list" id="tipos-servicio-list">
+                    <!-- Lista se genera dinámicamente -->
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
+                        <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

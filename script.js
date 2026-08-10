@@ -132,14 +132,10 @@ function initializeApp() {
     console.log('Aplicación inicializada correctamente');
 }
 
-// ===== CONFIGURACIÓN GITHUB CENTRALIZADA =====
-
-
-
-
-}
 
 function setDefaultValues() {
+    const fechaInput = document.getElementById('fechaServicio');
+    if (!fechaInput) return;
     // Establecer valores por defecto comunes
     const responsableInput = document.getElementById('nombreResponsable');
     const savedResponsable = localStorage.getItem('ultimoResponsable');
@@ -156,35 +152,9 @@ function setDefaultValues() {
 
 // ===== NAVEGACIÓN ENTRE PÁGINAS =====
 function showPage(pageId) {
-    // Ocultar todas las páginas
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    
-    // Mostrar la página seleccionada
-    document.getElementById(`page-${pageId}`).classList.add('active');
-    
-    // Actualizar botones de navegación
-    document.querySelectorAll('.btn-nav').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    event.target.classList.add('active');
-    
-    // Actualizar contenido según la página
+    // Nav handled by HTML links now
     BitacoraApp.currentPage = pageId;
-    
-    switch(pageId) {
-        case 'dashboard':
-            updateDashboard();
-            break;
-        case 'historial':
-            updateHistorial();
-            break;
-        case 'inventario':
-            renderizarInventario();
-            break;
-    }
+}
 }
 
 // ===== CONFIGURACIÓN DE EVENTOS =====
@@ -418,6 +388,7 @@ function resetForm() {
 
 // ===== DASHBOARD =====
 function updateDashboard() {
+    if (!document.getElementById('total-registros')) return;
     const registros = loadRegistros();
     
     if (registros.length === 0) {
@@ -572,6 +543,7 @@ function showEmptyDashboard() {
 
 // ===== HISTORIAL =====
 function updateHistorial() {
+    if (!document.getElementById('historial-content')) return;
     const registros = loadRegistros();
     const container = document.getElementById('historial-content');
     
@@ -1148,6 +1120,7 @@ function generarNuevoId() {
 
 // Función para renderizar la tabla de inventario
 function renderizarInventario() {
+    if (!document.getElementById('inventario-list')) return;
     const tbody = document.getElementById('inventario-tbody');
     if (!tbody) return;
 
@@ -1410,10 +1383,3 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Modificar showPage para cerrar el menú móvil al cambiar de página
-const originalShowPage = showPage;
-showPage = function(pageId) {
-    originalShowPage(pageId);
-    if (document.getElementById('navMenu').classList.contains('active')) {
-        closeMobileMenu();
-    }
-};
