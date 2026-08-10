@@ -825,7 +825,7 @@ function verDetalleRegistro(registroId) {
         `;
         
         Object.entries(equipos).forEach(([equipoId, equipoData]) => {
-            const equipoNombre = BitacoraApp.equiposNombres[equipoId];
+            const equipoNombre = BitacoraApp.equiposNombres[equipoId] || equipoId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
             const statusIcon = getStatusIcon(equipoData.estado);
             const statusClass = equipoData.estado;
             
@@ -1085,22 +1085,9 @@ function agregarTipoDesdeModal() {
 
 // ===== GESTIÓN DE INVENTARIO DE EQUIPOS =====
 
-// Estado inicial del inventario
-BitacoraApp.inventario = [
-    { id: 1, nombre: 'Micrófonos Alámbricos', categoria: 'Audio', cantidad: 1, descripcion: 'Micrófonos con cable' },
-    { id: 2, nombre: 'Micrófonos Inalámbricos', categoria: 'Audio', cantidad: 1, descripcion: 'Set de micrófonos inalámbricos' },
-    { id: 3, nombre: 'Planta de Sonido', categoria: 'Audio', cantidad: 1, descripcion: 'Sistema principal de audio' },
-    { id: 4, nombre: 'CPU Principal', categoria: 'Computadoras', cantidad: 1, descripcion: 'Computadora principal de control' },
-    { id: 5, nombre: 'Monitor Principal', categoria: 'Computadoras', cantidad: 1, descripcion: 'Monitor principal de la CPU' },
-    { id: 6, nombre: 'Cables HDMI', categoria: 'Conectividad', cantidad: 1, descripcion: 'Cables de video HDMI' },
-    { id: 7, nombre: 'Cables de Audio', categoria: 'Conectividad', cantidad: 1, descripcion: 'Cables de conexión de audio' },
-    { id: 8, nombre: 'Router WiFi', categoria: 'Internet', cantidad: 1, descripcion: 'Equipo de conexión a internet' },
-    { id: 9, nombre: 'Cámara de Celular', categoria: 'Video', cantidad: 1, descripcion: 'Cámara principal para transmisión' },
-    { id: 10, nombre: 'TV 1', categoria: 'Video', cantidad: 1, descripcion: 'Pantalla izquierda del altar' },
-    { id: 11, nombre: 'TV 2', categoria: 'Video', cantidad: 1, descripcion: 'Pantalla derecha del altar' }
-];
+// El inventario se carga dinámicamente desde Supabase en DOMContentLoaded
 
-BitacoraApp.equipoEnEdicion = null;
+
 
 // Función para cargar inventario desde localStorage
 async function cargarInventario() {
