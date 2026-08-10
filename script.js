@@ -1931,7 +1931,7 @@ function cargarTiposServicio() {
 
 // Función para guardar tipos de servicio en localStorage
 function guardarTiposServicio() {
-    localStorage.setItem('bitacora-tipos-servicio', JSON.stringify(BitacoraApp.tiposServicio));
+    // handled individually
 }
 
 // Función para actualizar los selects de tipos de servicio

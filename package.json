@@ -1,0 +1,25 @@
+{
+  "name": "bitacorarapida",
+  "version": "1.0.0",
+  "description": "Sistema web de bitácora para registrar y monitorear el estado de equipos audiovisuales en servicios religiosos.\r - 📊 **Dashboard** - Vista en tiempo real del estado de equipos\r - 📈 **Historial** - Registro completo de todos los servicios\r - 🎨 **Interfaz moderna** - Diseño profesional y fácil de usar\r - ⚡ **GitHub Pages** - Hospedaje gratuito y accesible desde cualquier lugar\r - 🔐 **Sincronización segura** - Datos respaldados en GitHub con versionado",
+  "main": "data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevIP98/bitacora-mecal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DevIP98/bitacora-mecal/issues"
+  },
+  "homepage": "https://github.com/DevIP98/bitacora-mecal#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "dotenv": "^17.4.2"
+  }
+}
