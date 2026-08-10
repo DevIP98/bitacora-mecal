@@ -138,16 +138,22 @@ const SupabaseDB = {
 
     async guardarEquipoInventario(equipo) {
         try {
-            // Upsert permite crear o actualizar si ya existe
+            const payload = {
+                nombre: equipo.nombre,
+                categoria: equipo.categoria,
+                cantidad: equipo.cantidad,
+                descripcion: equipo.descripcion
+            };
+            
+            // Los IDs temporales generados con Date.now() son > 1000000000000
+            if (equipo.id && equipo.id < 1000000000000) {
+                payload.id = equipo.id;
+            }
+
+            // Upsert en base a la llave primaria 'id'
             const { data, error } = await supabaseClient
                 .from('inventario')
-                .upsert({
-                    id: equipo.id > 1000 ? undefined : equipo.id, // Si es nuevo (ID temporal) dejamos que Supabase asigne el ID serial
-                    nombre: equipo.nombre,
-                    categoria: equipo.categoria,
-                    cantidad: equipo.cantidad,
-                    descripcion: equipo.descripcion
-                }, { onConflict: 'nombre' })
+                .upsert(payload, { onConflict: 'id' })
                 .select();
                 
             if (error) throw error;
