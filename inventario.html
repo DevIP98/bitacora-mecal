@@ -46,6 +46,9 @@
             <div class="inventario-header">
                 <h2><i class="fas fa-boxes"></i> Inventario de Equipos</h2>
                 <div class="inventario-actions">
+                    <button class="btn btn-secondary" onclick="mostrarGestionCategorias()">
+                        <i class="fas fa-tags"></i> Categorías
+                    </button>
                     <button class="btn btn-primary" onclick="abrirModalEquipo()">
                         <i class="fas fa-plus"></i> Agregar Equipo
                     </button>
@@ -58,11 +61,7 @@
             <div class="inventario-filtros">
                 <select id="filtro-categoria" onchange="filtrarInventario()">
                     <option value="">Todas las categorías</option>
-                    <option value="Audio">Audio</option>
-                    <option value="Computadoras">Computadoras</option>
-                    <option value="Conectividad">Conectividad</option>
-                    <option value="Internet">Internet</option>
-                    <option value="Video">Video</option>
+                    <!-- Se carga dinámicamente -->
                 </select>
                 <input type="text" id="buscar-equipo" placeholder="Buscar por nombre..." onkeyup="filtrarInventario()">
             </div>
@@ -106,11 +105,7 @@
                         <label for="equipo-categoria">Categoría *</label>
                         <select id="equipo-categoria" required>
                             <option value="">Seleccionar categoría...</option>
-                            <option value="Audio">Audio</option>
-                            <option value="Computadoras">Computadoras</option>
-                            <option value="Conectividad">Conectividad</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Video">Video</option>
+                            <!-- Se carga dinámicamente -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -126,6 +121,32 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
                 <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTIÓN DE CATEGORÍAS -->
+    <div id="modal-categorias" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-tags"></i> Gestionar Categorías</h3>
+                <button class="modal-close" onclick="cerrarModalCategorias()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="categorias-list" class="tipos-servicio-list">
+                    <!-- Lista se genera dinámicamente -->
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="nueva-categoria" placeholder="Nombre de la nueva categoría..." style="flex: 1;" maxlength="50">
+                        <button class="btn btn-primary" onclick="agregarCategoriaDesdeModal()">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="cerrarModalCategorias()">Cerrar</button>
             </div>
         </div>
     </div>

@@ -220,5 +220,50 @@ const SupabaseDB = {
             console.error('Error eliminando tipo de servicio:', error);
             return false;
         }
+    },
+
+    // ----------------------
+    // CATEGORÍAS DE INVENTARIO
+    // ----------------------
+    async cargarCategorias() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('categorias_inventario')
+                .select('*')
+                .order('nombre', { ascending: true });
+            if (error) throw error;
+            return data.map(c => c.nombre);
+        } catch (error) {
+            console.error('Error cargando categorías:', error);
+            // Fallback a categorías predeterminadas si la tabla no existe aún
+            return ['Audio', 'Computadoras', 'Conectividad', 'Internet', 'Video'];
+        }
+    },
+
+    async agregarCategoria(nombre) {
+        try {
+            const { error } = await supabaseClient
+                .from('categorias_inventario')
+                .insert({ nombre });
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error agregando categoría:', error);
+            return false;
+        }
+    },
+
+    async eliminarCategoria(nombre) {
+        try {
+            const { error } = await supabaseClient
+                .from('categorias_inventario')
+                .delete()
+                .eq('nombre', nombre);
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error eliminando categoría:', error);
+            return false;
+        }
     }
 };

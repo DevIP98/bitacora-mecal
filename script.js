@@ -76,7 +76,10 @@ const BitacoraApp = {
         'Servicio Especial',
         'Ayuno',
         'Ensayo'
-    ]
+    ],
+    
+    // Categorías de inventario dinámicas
+    categoriasInventario: []
 };
 
 // ===== INICIALIZACIÓN =====
@@ -115,6 +118,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // ── INVENTARIO PAGE ────────────────────────────────────────────
         if (isInventarioPage) {
+            // Cargar categorías
+            const categorias = await SupabaseDB.cargarCategorias();
+            if (categorias && categorias.length > 0) BitacoraApp.categoriasInventario = categorias;
+            if (typeof actualizarSelectCategorias === 'function') actualizarSelectCategorias();
+
             const inv = await SupabaseDB.cargarInventario();
             if (inv) BitacoraApp.inventario = inv;
             renderizarInventario();
@@ -1103,6 +1111,144 @@ function agregarTipoDesdeModal() {
     
     showNotification(`Tipo de servicio "${nuevoTipo}" agregado correctamente`, 'success');
 }
+
+// ===== GESTIÓN DE CATEGORÍAS DE INVENTARIO =====
+
+// Actualizar los select de categorías en la vista
+function actualizarSelectCategorias() {
+    const filtroSelect = document.getElementById('filtro-categoria');
+    const formSelect = document.getElementById('equipo-categoria');
+    
+    const categorias = BitacoraApp.categoriasInventario || [];
+    
+    if (filtroSelect) {
+        let html = '<option value="">Todas las categorías</option>';
+        categorias.forEach(cat => {
+            html += `<option value="${cat}">${cat}</option>`;
+        });
+        filtroSelect.innerHTML = html;
+    }
+    
+    if (formSelect) {
+        let html = '<option value="">Seleccionar categoría...</option>';
+        categorias.forEach(cat => {
+            html += `<option value="${cat}">${cat}</option>`;
+        });
+        formSelect.innerHTML = html;
+    }
+}
+
+// Mostrar modal de gestión
+function mostrarGestionCategorias() {
+    const modal = document.getElementById('modal-categorias');
+    if (!modal) return;
+    
+    actualizarListaCategorias();
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) cerrarModalCategorias();
+    });
+    
+    setTimeout(() => {
+        const input = document.getElementById('nueva-categoria');
+        if (input) input.focus();
+    }, 100);
+}
+
+// Cerrar modal
+function cerrarModalCategorias() {
+    const modal = document.getElementById('modal-categorias');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        const input = document.getElementById('nueva-categoria');
+        if (input) input.value = '';
+    }
+}
+
+// Renderizar la lista dentro del modal
+function actualizarListaCategorias() {
+    const lista = document.getElementById('categorias-list');
+    if (!lista) return;
+    
+    lista.innerHTML = '';
+    
+    if (BitacoraApp.categoriasInventario.length === 0) {
+        lista.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">No hay categorías configuradas</p>';
+        return;
+    }
+    
+    BitacoraApp.categoriasInventario.forEach(cat => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; margin-bottom: 0.5rem; background: #f8f9fa; border-radius: 6px; border: 1px solid #dee2e6;';
+        
+        item.innerHTML = `
+            <span style="font-weight: 500;">${cat}</span>
+            <button class="btn btn-danger btn-sm" onclick="eliminarCategoria('${cat.replace(/'/g, '\\\'')}')" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        
+        lista.appendChild(item);
+    });
+}
+
+// Agregar desde modal
+async function agregarCategoriaDesdeModal() {
+    const input = document.getElementById('nueva-categoria');
+    if (!input) return;
+    
+    const nuevaCategoria = input.value.trim();
+    if (!nuevaCategoria) {
+        showNotification('Ingresa un nombre para la categoría', 'warning');
+        input.focus();
+        return;
+    }
+    
+    if (BitacoraApp.categoriasInventario.includes(nuevaCategoria)) {
+        showNotification('Esta categoría ya existe', 'warning');
+        input.focus();
+        input.select();
+        return;
+    }
+    
+    // Add optimistically
+    BitacoraApp.categoriasInventario.push(nuevaCategoria);
+    BitacoraApp.categoriasInventario.sort();
+    actualizarSelectCategorias();
+    actualizarListaCategorias();
+    
+    input.value = '';
+    input.focus();
+    
+    const success = await SupabaseDB.agregarCategoria(nuevaCategoria);
+    if(success) showNotification(`Categoría "${nuevaCategoria}" agregada`, 'success');
+    else showNotification('Error al guardar categoría en servidor', 'error');
+}
+
+// Eliminar categoría
+async function eliminarCategoria(nombre) {
+    // Check if category is in use
+    const enUso = BitacoraApp.inventario.some(item => item.categoria === nombre);
+    if (enUso) {
+        showNotification(`No se puede eliminar la categoría "${nombre}" porque hay equipos que la utilizan`, 'error');
+        return;
+    }
+    
+    if (!confirm(`¿Estás seguro de que deseas eliminar la categoría "${nombre}"?`)) return;
+    
+    // Eliminar optimistically
+    BitacoraApp.categoriasInventario = BitacoraApp.categoriasInventario.filter(c => c !== nombre);
+    actualizarSelectCategorias();
+    actualizarListaCategorias();
+    
+    await SupabaseDB.eliminarCategoria(nombre);
+}
+
 
 // ===== GESTIÓN DE INVENTARIO DE EQUIPOS =====
 
