@@ -177,7 +177,7 @@ const SupabaseDB = {
     // ----------------------
     async cargarTiposServicio() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('tipos_servicio')
                 .select('*')
                 .eq('activo', true)
@@ -193,7 +193,7 @@ const SupabaseDB = {
 
     async agregarTipoServicio(nombre) {
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('tipos_servicio')
                 .upsert({ nombre: nombre, activo: true }, { onConflict: 'nombre' });
                 
@@ -208,7 +208,7 @@ const SupabaseDB = {
     async eliminarTipoServicio(nombre) {
         try {
             // Solo lo marcamos como inactivo para no perder referencias históricas
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('tipos_servicio')
                 .update({ activo: false })
                 .eq('nombre', nombre);
