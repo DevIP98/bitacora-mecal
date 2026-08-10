@@ -42,8 +42,8 @@ const createPage = (mainContent, activePage) => {
     let pageHtml = originalHtml;
     
     // Replace the entire <main> block
-    const mainStartIdx = originalHtml.indexOf('<main class="main-content">');
-    const newMain = `<main class="main-content">\n        ${cleanSection(mainContent)}    </main>`;
+    const mainStartIdx = originalHtml.indexOf('<main class="container">');
+    const newMain = `<main class="container">\n        ${cleanSection(mainContent)}    </main>`;
     pageHtml = originalHtml.substring(0, mainStartIdx) + newMain + originalHtml.substring(mainEnd + 7);
     
     // Replace nav
