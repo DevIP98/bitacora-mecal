@@ -414,7 +414,7 @@ function resetForm() {
 
 // ===== DASHBOARD =====
 function updateDashboard() {
-    if (!document.getElementById('total-registros')) return;
+    if (!document.getElementById('stat-good')) return;
     const registros = loadRegistros();
     
     if (registros.length === 0) {
@@ -1133,7 +1133,6 @@ function generarNuevoId() {
 
 // Función para renderizar la tabla de inventario
 function renderizarInventario() {
-    if (!document.getElementById('inventario-list')) return;
     const tbody = document.getElementById('inventario-tbody');
     if (!tbody) return;
 
