@@ -110,12 +110,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 function initializeApp() {
     // Configurar fecha por defecto
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('fechaServicio').value = today;
+    const fechaEl = document.getElementById('fechaServicio');
+    if (fechaEl) fechaEl.value = today;
     
     // Configurar hora por defecto
     const now = new Date();
     const timeString = now.toTimeString().slice(0, 5);
-    document.getElementById('horaInicio').value = timeString;
+    const horaEl = document.getElementById('horaInicio');
+    if (horaEl) horaEl.value = timeString;
     
     // Cargar tipos de servicio
     cargarTiposServicio();
@@ -155,19 +157,19 @@ function showPage(pageId) {
     // Nav handled by HTML links now
     BitacoraApp.currentPage = pageId;
 }
-}
-
 // ===== CONFIGURACIÓN DE EVENTOS =====
 function setupFormEvents() {
     const form = document.getElementById('bitacoraForm');
-    form.addEventListener('submit', handleFormSubmit);
+    if (form) form.addEventListener('submit', handleFormSubmit);
     
     // Eventos para guardar datos del responsable
-    document.getElementById('nombreResponsable').addEventListener('blur', function() {
+    const nombreResp = document.getElementById('nombreResponsable');
+    if (nombreResp) nombreResp.addEventListener('blur', function() {
         localStorage.setItem('ultimoResponsable', this.value);
     });
     
-    document.getElementById('rolResponsable').addEventListener('change', function() {
+    const rolResp = document.getElementById('rolResponsable');
+    if (rolResp) rolResp.addEventListener('change', function() {
         localStorage.setItem('ultimoRol', this.value);
     });
     
@@ -197,8 +199,12 @@ function setupNavigationEvents() {
     // Los eventos de navegación se manejan directamente en el HTML con onclick
 }
 
+// Eventos para los botones de estado de equipos
 function setupEquipmentStatusEvents() {
-    document.querySelectorAll('.status-btn').forEach(btn => {
+    const statusBtns = document.querySelectorAll('.status-btn');
+    if (!statusBtns.length) return;
+    
+    statusBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const category = this.dataset.category;
             const item = this.dataset.item;
@@ -206,16 +212,15 @@ function setupEquipmentStatusEvents() {
             
             // Remover clase active de otros botones del mismo equipo
             const equipmentItem = this.closest('.equipment-item');
-            equipmentItem.querySelectorAll('.status-btn').forEach(b => {
-                b.classList.remove('active');
-            });
-            
-            // Agregar clase active al botón seleccionado
-            this.classList.add('active');
-            
-            // Guardar el estado en un atributo data del contenedor
-            equipmentItem.setAttribute('data-status', status);
-            
+            if (equipmentItem) {
+                equipmentItem.querySelectorAll('.status-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                // Agregar clase active al botón seleccionado
+                this.classList.add('active');
+                // Guardar el estado en un atributo data del contenedor
+                equipmentItem.setAttribute('data-status', status);
+            }
             console.log(`Estado actualizado: ${item} -> ${status}`);
         });
     });
