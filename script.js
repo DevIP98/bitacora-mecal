@@ -148,7 +148,10 @@ function initializeApp() {
     const horaEl = document.getElementById('horaInicio');
     if (horaEl) horaEl.value = timeString;
     
-    // Cargar tipos de servicio
+    // Poblar de inmediato con tipos de servicio por defecto (evita dropdown vacío si Supabase está pausado)
+    actualizarSelectTiposServicio();
+    
+    // Cargar tipos de servicio actualizados desde Supabase
     cargarTiposServicio();
     
     // Configurar eventos del formulario
@@ -970,12 +973,16 @@ function syncToCloud() {
 
 // ===== GESTIÓN DE TIPOS DE SERVICIO =====
 
-// Función para cargar tipos de servicio desde localStorage
+// Función para cargar tipos de servicio desde Supabase
 async function cargarTiposServicio() {
-    const tipos = await SupabaseDB.cargarTiposServicio();
-    if(tipos) {
-        BitacoraApp.tiposServicio = tipos;
-        actualizarSelectTiposServicio();
+    try {
+        const tipos = await SupabaseDB.cargarTiposServicio();
+        if(tipos && tipos.length > 0) {
+            BitacoraApp.tiposServicio = tipos;
+            actualizarSelectTiposServicio();
+        }
+    } catch (e) {
+        console.warn('Error al cargar tipos de servicio de Supabase:', e);
     }
 }
 

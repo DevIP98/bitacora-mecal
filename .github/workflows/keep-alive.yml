@@ -1,0 +1,25 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Se ejecuta todos los días a las 06:00 y a las 18:00 UTC (cada 12 horas)
+    - cron: '0 6,18 * * *'
+  workflow_dispatch: # Permite ejecutar la prueba manualmente desde GitHub Actions
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        run: |
+          echo "Enviando ping a Supabase para evitar pausa por inactividad..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://faghdxupjcbykyiczxam.supabase.co/rest/v1/registros?select=id&limit=1" \
+            -H "apikey: sb_publishable_HiwmXX3UlJIblqxOW0MTxw_mx0bg4_m" \
+            -H "Authorization: Bearer sb_publishable_HiwmXX3UlJIblqxOW0MTxw_mx0bg4_m")
+          echo "Respuesta HTTP: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 206 ]; then
+            echo "Ping exitoso. Supabase se mantendrá activo."
+          else
+            echo "Aviso: Respuesta recibida fue $HTTP_STATUS"
+          fi
