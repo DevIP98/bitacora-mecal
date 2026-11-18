@@ -1,407 +1,448 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Registro - Bitácora MECAL</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo Registro - Bitácora MECAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
-        <div class="container">
-            <h1><i class="fas fa-clipboard-list"></i> Bitácora Producción MECAL</h1>
-            
-            <!-- Botón hamburguesa para móvil -->
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            
-            
-            <!-- Navegación -->
-            <nav class="nav-menu" id="navMenu">
-                <a href="index.html" class="btn-nav active" style="text-decoration: none;">
-                    <i class="fas fa-plus"></i> Nuevo Registro
-                </a>
-                <a href="dashboard.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="historial.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-history"></i> Historial
-                </a>
-                <a href="inventario.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-boxes"></i> Inventario
-                </a>
-            </nav>
-        </div>
-    </header>
+    <div class="container">
+      <h1><i class="fas fa-sliders-h"></i> Bitácora MECAL <span class="brand-badge">Producción</span></h1>
+      
+      <!-- Botón hamburguesa para móvil -->
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <!-- Navegación -->
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="btn-nav active" style="text-decoration: none;">
+          <i class="fas fa-plus-circle"></i> Nuevo Registro
+        </a>
+        <a href="dashboard.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="historial.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-history"></i> Historial
+        </a>
+        <a href="inventario.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-boxes"></i> Inventario
+        </a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Overlay para menú móvil -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+  <!-- Overlay para menú móvil -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
 
-    <main class="container">
-        <div id="page-registro" class="page active">
-            <div class="form-container">
+  <main class="container">
+    <div id="page-registro" class="page active">
+      <div class="form-container">
                 <div class="form-header">
-                    <h2><i class="fas fa-plus-circle"></i> Nuevo Registro de Bitácora</h2>
-                    <p>Registra el estado de los equipos para el servicio</p>
+          <div class="form-header-text">
+            <h2><i class="fas fa-plus-circle"></i> Nuevo Registro de Bitácora</h2>
+            <p>Registra y verifica el estado de los equipos técnicos para el servicio</p>
+          </div>
+        </div>
+
+        <!-- Barra de Acciones Rápidas -->
+        <div class="quick-action-bar">
+          <span class="quick-action-title"><i class="fas fa-bolt"></i> Atajos:</span>
+          <button type="button" class="btn-quick btn-quick-good" onclick="marcarTodoBueno()">
+            <i class="fas fa-check-double"></i> Marcar Todo en Buen Estado
+          </button>
+          <button type="button" class="btn-quick btn-quick-time" onclick="setFechaHoraActual()">
+            <i class="fas fa-clock"></i> Poner Fecha y Hora Actual
+          </button>
+        </div>
+
+        <form id="bitacoraForm" class="bitacora-form">
+          <!-- Información del Servicio -->
+          <section class="form-section">
+            <h3><i class="fas fa-info-circle"></i> Información del Servicio</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="tipoServicio">Tipo de Servicio *</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <select id="tipoServicio" required style="flex: 1;">
+                    <option value="">Seleccionar...</option>
+                    <!-- Las opciones se cargan dinámicamente desde JavaScript -->
+                  </select>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="mostrarGestionTiposServicio()" title="Gestionar tipos de servicio">
+                    <i class="fas fa-cog"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="fechaServicio">Fecha del Servicio *</label>
+                <input type="date" id="fechaServicio" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="horaInicio">Hora de Inicio *</label>
+                <input type="time" id="horaInicio" required>
+              </div>
+              <div class="form-group">
+                <label for="horaFinalizacion">Hora de Finalización</label>
+                <input type="time" id="horaFinalizacion">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="observacionesGenerales">Observaciones Generales</label>
+              <textarea id="observacionesGenerales" placeholder="Descripción general del servicio, incidencias, etc."></textarea>
+            </div>
+          </section>
+
+          <!-- Estado de los Equipos -->
+          <section class="form-section">
+            <h3><i class="fas fa-cogs"></i> Estado de los Equipos</h3>
+            <p class="section-subtitle">Marca el estado actual de cada equipo</p>
+
+            <!-- Audio -->
+            <div class="equipment-category">
+              <div class="category-header-wrap">
+                <h4><i class="fas fa-volume-up"></i> Audio</h4>
+                <button type="button" class="btn-cat-quick" onclick="marcarCategoriaBueno(this)" title="Marcar todos los equipos de Audio como Bueno">
+                  <i class="fas fa-check"></i> Todo Bueno
+                </button>
+              </div>
+              <div class="equipment-grid">
+                <div class="equipment-item">
+                  <label>Micrófonos Inalámbricos</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-inalambricos" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-inalambricos" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-inalambricos" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
                 </div>
 
-                <form id="bitacoraForm" class="bitacora-form">
-                    <!-- Información del Servicio -->
-                    <section class="form-section">
-                        <h3><i class="fas fa-info-circle"></i> Información del Servicio</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="tipoServicio">Tipo de Servicio *</label>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <select id="tipoServicio" required style="flex: 1;">
-                                        <option value="">Seleccionar...</option>
-                                        <!-- Las opciones se cargan dinámicamente desde JavaScript -->
-                                    </select>
-                                    <button type="button" class="btn btn-outline btn-sm" onclick="mostrarGestionTiposServicio()" title="Gestionar tipos de servicio">
-                                        <i class="fas fa-cog"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="fechaServicio">Fecha del Servicio *</label>
-                                <input type="date" id="fechaServicio" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="horaInicio">Hora de Inicio *</label>
-                                <input type="time" id="horaInicio" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="horaFinalizacion">Hora de Finalización</label>
-                                <input type="time" id="horaFinalizacion">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="observacionesGenerales">Observaciones Generales</label>
-                            <textarea id="observacionesGenerales" placeholder="Descripción general del servicio, incidencias, etc."></textarea>
-                        </div>
-                    </section>
+                <div class="equipment-item">
+                  <label>Micrófonos Alámbricos</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-alambricos" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-alambricos" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-alambricos" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
 
-                    <!-- Estado de los Equipos -->
-                    <section class="form-section">
-                        <h3><i class="fas fa-cogs"></i> Estado de los Equipos</h3>
-                        <p class="section-subtitle">Marca el estado actual de cada equipo</p>
-
-                        <!-- Audio -->
-                        <div class="equipment-category">
-                            <h4><i class="fas fa-volume-up"></i> Audio</h4>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <label>Micrófonos Inalámbricos</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-inalambricos" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-inalambricos" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-inalambricos" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>Micrófonos Alámbricos</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="audio" data-item="microfonos-alambricos" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="audio" data-item="microfonos-alambricos" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="audio" data-item="microfonos-alambricos" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>Planta de Sonido</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="audio" data-item="planta-sonido" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="audio" data-item="planta-sonido" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="audio" data-item="planta-sonido" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Computadoras -->
-                        <div class="equipment-category">
-                            <h4><i class="fas fa-desktop"></i> Computadoras</h4>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <label>CPU Principal</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="computadoras" data-item="cpu-principal" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="computadoras" data-item="cpu-principal" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="computadoras" data-item="cpu-principal" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>Monitor Principal</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="computadoras" data-item="monitor-principal" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="computadoras" data-item="monitor-principal" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="computadoras" data-item="monitor-principal" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Conectividad -->
-                        <div class="equipment-category">
-                            <h4><i class="fas fa-wifi"></i> Conectividad</h4>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <label>Cables HDMI</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-hdmi" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-hdmi" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-hdmi" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>Cables de Audio</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-audio" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-audio" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-audio" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Internet -->
-                        <div class="equipment-category">
-                            <h4><i class="fas fa-globe"></i> Internet</h4>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <label>Router WiFi</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="internet" data-item="router-wifi" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="internet" data-item="router-wifi" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="internet" data-item="router-wifi" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Video -->
-                        <div class="equipment-category">
-                            <h4><i class="fas fa-video"></i> Video</h4>
-                            <div class="equipment-grid">
-                                <div class="equipment-item">
-                                    <label>Cámara de Celular</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="video" data-item="camara-celular" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="video" data-item="camara-celular" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="video" data-item="camara-celular" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>TV 1</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="video" data-item="tv-1" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="video" data-item="tv-1" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="video" data-item="tv-1" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-
-                                <div class="equipment-item">
-                                    <label>TV 2</label>
-                                    <div class="status-buttons">
-                                        <button type="button" class="status-btn good" data-category="video" data-item="tv-2" data-status="bueno">
-                                            <i class="fas fa-check"></i> Bueno
-                                        </button>
-                                        <button type="button" class="status-btn warning" data-category="video" data-item="tv-2" data-status="regular">
-                                            <i class="fas fa-exclamation-triangle"></i> Regular
-                                        </button>
-                                        <button type="button" class="status-btn danger" data-category="video" data-item="tv-2" data-status="malo">
-                                            <i class="fas fa-times"></i> Malo
-                                        </button>
-                                    </div>
-                                    <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Información del Responsable -->
-                    <section class="form-section">
-                        <h3><i class="fas fa-user"></i> Información del Responsable</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="nombreResponsable">Nombre del Responsable *</label>
-                                <input type="text" id="nombreResponsable" required placeholder="Nombre completo">
-                            </div>
-                            <div class="form-group">
-                                <label for="rolResponsable">Rol/Función *</label>
-                                <select id="rolResponsable" required disabled>
-                                    <option value="Servidor" selected>Servidor</option>
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                            <i class="fas fa-undo"></i> Limpiar Formulario
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar Registro
-                        </button>
-                    </div>
-                </form>
+                <div class="equipment-item">
+                  <label>Planta de Sonido</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="audio" data-item="planta-sonido" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="audio" data-item="planta-sonido" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="audio" data-item="planta-sonido" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+              </div>
             </div>
-        </div>
 
-        <!-- PÁGINA DASHBOARD -->
-            </main>
+            <!-- Computadoras -->
+            <div class="equipment-category">
+              <div class="category-header-wrap">
+                <h4><i class="fas fa-desktop"></i> Computadoras</h4>
+                <button type="button" class="btn-cat-quick" onclick="marcarCategoriaBueno(this)" title="Marcar todos los equipos de Computadoras como Bueno">
+                  <i class="fas fa-check"></i> Todo Bueno
+                </button>
+              </div>
+              <div class="equipment-grid">
+                <div class="equipment-item">
+                  <label>CPU Principal</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="computadoras" data-item="cpu-principal" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="computadoras" data-item="cpu-principal" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="computadoras" data-item="cpu-principal" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
 
-
-
-    <!-- MODAL GESTIÓN DE EQUIPOS -->
-    <div id="modal-equipo" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
-                <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
+                <div class="equipment-item">
+                  <label>Monitor Principal</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="computadoras" data-item="monitor-principal" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="computadoras" data-item="monitor-principal" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="computadoras" data-item="monitor-principal" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+              </div>
             </div>
-            <div class="modal-body">
-                <form id="form-equipo">
-                    <div class="form-group">
-                        <label for="equipo-nombre">Nombre del Equipo *</label>
-                        <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-categoria">Categoría *</label>
-                        <select id="equipo-categoria" required>
-                            <option value="">Seleccionar categoría...</option>
-                            <option value="Audio">Audio</option>
-                            <option value="Computadoras">Computadoras</option>
-                            <option value="Conectividad">Conectividad</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Video">Video</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-cantidad">Cantidad *</label>
-                        <input type="number" id="equipo-cantidad" required min="1" value="1" placeholder="Ej: 1">
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-descripcion">Descripción</label>
-                        <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
-                    </div>
-                </form>
+
+            <!-- Conectividad -->
+            <div class="equipment-category">
+              <div class="category-header-wrap">
+                <h4><i class="fas fa-wifi"></i> Conectividad</h4>
+                <button type="button" class="btn-cat-quick" onclick="marcarCategoriaBueno(this)" title="Marcar todos los equipos de Conectividad como Bueno">
+                  <i class="fas fa-check"></i> Todo Bueno
+                </button>
+              </div>
+              <div class="equipment-grid">
+                <div class="equipment-item">
+                  <label>Cables HDMI</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-hdmi" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-hdmi" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-hdmi" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+
+                <div class="equipment-item">
+                  <label>Cables de Audio</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="conectividad" data-item="cables-audio" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="conectividad" data-item="cables-audio" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="conectividad" data-item="cables-audio" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+              </div>
             </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+
+            <!-- Internet -->
+            <div class="equipment-category">
+              <div class="category-header-wrap">
+                <h4><i class="fas fa-globe"></i> Internet</h4>
+                <button type="button" class="btn-cat-quick" onclick="marcarCategoriaBueno(this)" title="Marcar todos los equipos de Internet como Bueno">
+                  <i class="fas fa-check"></i> Todo Bueno
+                </button>
+              </div>
+              <div class="equipment-grid">
+                <div class="equipment-item">
+                  <label>Router WiFi</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="internet" data-item="router-wifi" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="internet" data-item="router-wifi" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="internet" data-item="router-wifi" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+              </div>
             </div>
-        </div>
+
+            <!-- Video -->
+            <div class="equipment-category">
+              <div class="category-header-wrap">
+                <h4><i class="fas fa-video"></i> Video</h4>
+                <button type="button" class="btn-cat-quick" onclick="marcarCategoriaBueno(this)" title="Marcar todos los equipos de Video como Bueno">
+                  <i class="fas fa-check"></i> Todo Bueno
+                </button>
+              </div>
+              <div class="equipment-grid">
+                <div class="equipment-item">
+                  <label>Cámara de Celular</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="video" data-item="camara-celular" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="video" data-item="camara-celular" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="video" data-item="camara-celular" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+
+                <div class="equipment-item">
+                  <label>TV 1</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="video" data-item="tv-1" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="video" data-item="tv-1" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="video" data-item="tv-1" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+
+                <div class="equipment-item">
+                  <label>TV 2</label>
+                  <div class="status-buttons">
+                    <button type="button" class="status-btn good" data-category="video" data-item="tv-2" data-status="bueno">
+                      <i class="fas fa-check"></i> Bueno
+                    </button>
+                    <button type="button" class="status-btn warning" data-category="video" data-item="tv-2" data-status="regular">
+                      <i class="fas fa-exclamation-triangle"></i> Regular
+                    </button>
+                    <button type="button" class="status-btn danger" data-category="video" data-item="tv-2" data-status="malo">
+                      <i class="fas fa-times"></i> Malo
+                    </button>
+                  </div>
+                  <input type="text" class="observations" placeholder="Observaciones específicas para este equipo">
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Información del Responsable -->
+          <section class="form-section">
+            <h3><i class="fas fa-user"></i> Información del Responsable</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nombreResponsable">Nombre del Responsable *</label>
+                <input type="text" id="nombreResponsable" required placeholder="Nombre completo">
+              </div>
+              <div class="form-group">
+                <label for="rolResponsable">Rol/Función *</label>
+                <select id="rolResponsable" required disabled>
+                  <option value="Servidor" selected>Servidor</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+              <i class="fas fa-undo"></i> Limpiar Formulario
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Guardar Registro
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
-    <div id="modal-tipos-servicio" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
-                <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="tipos-servicio-list" id="tipos-servicio-list">
-                    <!-- Lista se genera dinámicamente -->
-                </div>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
-                        <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
-                            <i class="fas fa-plus"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
-            </div>
-        </div>
-    </div>
+    <!-- PÁGINA DASHBOARD -->
+      </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="script.js"></script>
+
+
+  <!-- MODAL GESTIÓN DE EQUIPOS -->
+  <div id="modal-equipo" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
+        <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-equipo">
+          <div class="form-group">
+            <label for="equipo-nombre">Nombre del Equipo *</label>
+            <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
+          </div>
+          <div class="form-group">
+            <label for="equipo-categoria">Categoría *</label>
+            <select id="equipo-categoria" required>
+              <option value="">Seleccionar categoría...</option>
+              <option value="Audio">Audio</option>
+              <option value="Computadoras">Computadoras</option>
+              <option value="Conectividad">Conectividad</option>
+              <option value="Internet">Internet</option>
+              <option value="Video">Video</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="equipo-cantidad">Cantidad *</label>
+            <input type="number" id="equipo-cantidad" required min="1" value="1" placeholder="Ej: 1">
+          </div>
+          <div class="form-group">
+            <label for="equipo-descripcion">Descripción</label>
+            <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
+  <div id="modal-tipos-servicio" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
+        <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="tipos-servicio-list" id="tipos-servicio-list">
+          <!-- Lista se genera dinámicamente -->
+        </div>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
+            <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
+              <i class="fas fa-plus"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

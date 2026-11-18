@@ -1,147 +1,150 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Bitácora MECAL</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Bitácora MECAL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
-        <div class="container">
-            <h1><i class="fas fa-clipboard-list"></i> Bitácora Producción MECAL</h1>
-            
-            <!-- Botón hamburguesa para móvil -->
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
+    <div class="container">
+      <h1><i class="fas fa-sliders-h"></i> Bitácora MECAL <span class="brand-badge">Producción</span></h1>
+      
+      <!-- Botón hamburguesa para móvil -->
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <!-- Navegación -->
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-plus-circle"></i> Nuevo Registro
+        </a>
+        <a href="dashboard.html" class="btn-nav active" style="text-decoration: none;">
+          <i class="fas fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="historial.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-history"></i> Historial
+        </a>
+        <a href="inventario.html" class="btn-nav " style="text-decoration: none;">
+          <i class="fas fa-boxes"></i> Inventario
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Overlay para menú móvil -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+
+  <main class="container">
+    <div id="page-dashboard" class="page active">
+      <div class="dashboard-header">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard - Estado Actual</h2>
+        <div class="dashboard-stats">
+          <div class="stat-card good">
+            <i class="fas fa-check-circle"></i>
+            <span class="stat-number" id="stat-good">0</span>
+            <span class="stat-label">Equipos en Buen Estado</span>
+          </div>
+          <div class="stat-card warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="stat-number" id="stat-warning">0</span>
+            <span class="stat-label">Equipos con Problemas</span>
+          </div>
+          <div class="stat-card danger">
+            <i class="fas fa-times-circle"></i>
+            <span class="stat-number" id="stat-danger">0</span>
+            <span class="stat-label">Equipos Fuera de Servicio</span>
+          </div>
+        </div>
+      </div>
+      <div id="dashboard-content" class="dashboard-grid">
+        <!-- El contenido se genera dinámicamente -->
+      </div>
+    </div>
+
+    <!-- PÁGINA HISTORIAL -->
+      </main>
+
+
+
+  <!-- MODAL GESTIÓN DE EQUIPOS -->
+  <div id="modal-equipo" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
+        <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-equipo">
+          <div class="form-group">
+            <label for="equipo-nombre">Nombre del Equipo *</label>
+            <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
+          </div>
+          <div class="form-group">
+            <label for="equipo-categoria">Categoría *</label>
+            <select id="equipo-categoria" required>
+              <option value="">Seleccionar categoría...</option>
+              <option value="Audio">Audio</option>
+              <option value="Computadoras">Computadoras</option>
+              <option value="Conectividad">Conectividad</option>
+              <option value="Internet">Internet</option>
+              <option value="Video">Video</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="equipo-cantidad">Cantidad *</label>
+            <input type="number" id="equipo-cantidad" required min="1" value="1" placeholder="Ej: 1">
+          </div>
+          <div class="form-group">
+            <label for="equipo-descripcion">Descripción</label>
+            <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
+  <div id="modal-tipos-servicio" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
+        <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="tipos-servicio-list" id="tipos-servicio-list">
+          <!-- Lista se genera dinámicamente -->
+        </div>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
+            <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
+              <i class="fas fa-plus"></i> Agregar
             </button>
-            
-            
-            <!-- Navegación -->
-            <nav class="nav-menu" id="navMenu">
-                <a href="index.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-plus"></i> Nuevo Registro
-                </a>
-                <a href="dashboard.html" class="btn-nav active" style="text-decoration: none;">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a href="historial.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-history"></i> Historial
-                </a>
-                <a href="inventario.html" class="btn-nav " style="text-decoration: none;">
-                    <i class="fas fa-boxes"></i> Inventario
-                </a>
-            </nav>
+          </div>
         </div>
-    </header>
-
-    <!-- Overlay para menú móvil -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
-
-    <main class="container">
-        <div id="page-dashboard" class="page active">
-            <div class="dashboard-header">
-                <h2><i class="fas fa-tachometer-alt"></i> Dashboard - Estado Actual</h2>
-                <div class="dashboard-stats">
-                    <div class="stat-card good">
-                        <i class="fas fa-check-circle"></i>
-                        <span class="stat-number" id="stat-good">0</span>
-                        <span class="stat-label">Equipos en Buen Estado</span>
-                    </div>
-                    <div class="stat-card warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span class="stat-number" id="stat-warning">0</span>
-                        <span class="stat-label">Equipos con Problemas</span>
-                    </div>
-                    <div class="stat-card danger">
-                        <i class="fas fa-times-circle"></i>
-                        <span class="stat-number" id="stat-danger">0</span>
-                        <span class="stat-label">Equipos Fuera de Servicio</span>
-                    </div>
-                </div>
-            </div>
-            <div id="dashboard-content" class="dashboard-grid">
-                <!-- El contenido se genera dinámicamente -->
-            </div>
-        </div>
-
-        <!-- PÁGINA HISTORIAL -->
-            </main>
-
-
-
-    <!-- MODAL GESTIÓN DE EQUIPOS -->
-    <div id="modal-equipo" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-equipo-title"><i class="fas fa-cog"></i> Agregar Equipo</h3>
-                <button class="modal-close" onclick="cerrarModalEquipo()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-equipo">
-                    <div class="form-group">
-                        <label for="equipo-nombre">Nombre del Equipo *</label>
-                        <input type="text" id="equipo-nombre" required placeholder="Ej: Micrófono Principal">
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-categoria">Categoría *</label>
-                        <select id="equipo-categoria" required>
-                            <option value="">Seleccionar categoría...</option>
-                            <option value="Audio">Audio</option>
-                            <option value="Computadoras">Computadoras</option>
-                            <option value="Conectividad">Conectividad</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Video">Video</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-cantidad">Cantidad *</label>
-                        <input type="number" id="equipo-cantidad" required min="1" value="1" placeholder="Ej: 1">
-                    </div>
-                    <div class="form-group">
-                        <label for="equipo-descripcion">Descripción</label>
-                        <textarea id="equipo-descripcion" placeholder="Describe el equipo, modelo, características, etc."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="cerrarModalEquipo()">Cancelar</button>
-                <button class="btn btn-primary" onclick="guardarEquipo()">Guardar</button>
-            </div>
-        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
+      </div>
     </div>
+  </div>
 
-    <!-- MODAL GESTIÓN DE TIPOS DE SERVICIO -->
-    <div id="modal-tipos-servicio" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-list"></i> Gestionar Tipos de Servicio</h3>
-                <button class="modal-close" onclick="cerrarModalTiposServicio()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="tipos-servicio-list" id="tipos-servicio-list">
-                    <!-- Lista se genera dinámicamente -->
-                </div>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;">
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="nuevo-tipo-servicio" placeholder="Nombre del nuevo tipo de servicio..." style="flex: 1;" maxlength="50">
-                        <button class="btn btn-primary" onclick="agregarTipoDesdeModal()">
-                            <i class="fas fa-plus"></i> Agregar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="cerrarModalTiposServicio()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

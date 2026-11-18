@@ -258,6 +258,52 @@ function setupEquipmentStatusEvents() {
     });
 }
 
+// ===== ACCIONES RÁPIDAS DE INTERFAZ =====
+// Marcar todos los equipos del formulario como 'bueno'
+function marcarTodoBueno() {
+    const items = document.querySelectorAll('.equipment-item');
+    if (!items.length) return;
+    
+    let count = 0;
+    items.forEach(item => {
+        const goodBtn = item.querySelector('.status-btn.good');
+        if (goodBtn) {
+            goodBtn.click();
+            count++;
+        }
+    });
+    showNotification(`✅ ${count} equipos marcados como "Bueno"`, 'success');
+}
+
+// Marcar equipos de una categoría como 'bueno'
+function marcarCategoriaBueno(btn) {
+    const category = btn.closest('.equipment-category');
+    if (!category) return;
+    
+    const items = category.querySelectorAll('.equipment-item');
+    items.forEach(item => {
+        const goodBtn = item.querySelector('.status-btn.good');
+        if (goodBtn) goodBtn.click();
+    });
+    const title = category.querySelector('h4')?.textContent.replace('Todo Bueno', '').trim() || 'Categoría';
+    showNotification(`Equipos de "${title}" marcados como "Bueno"`, 'success');
+}
+
+// Sincronizar fecha y hora actual automáticamente
+function setFechaHoraActual() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const timeString = now.toTimeString().slice(0, 5);
+    
+    const fechaEl = document.getElementById('fechaServicio');
+    if (fechaEl) fechaEl.value = today;
+    
+    const horaEl = document.getElementById('horaInicio');
+    if (horaEl) horaEl.value = timeString;
+    
+    showNotification('🕒 Fecha y hora sincronizadas con el momento actual', 'info');
+}
+
 // ===== MANEJO DEL FORMULARIO =====
 function handleFormSubmit(event) {
     event.preventDefault();
@@ -807,111 +853,393 @@ function exportToJSON() {
 }
 
 function verDetalleRegistro(registroId) {
-    const registros = loadRegistros();
-    const registro = registros.find(r => r.id === registroId);
+    const registros = loadRegistros() || [];
+    const registro = registros.find(r => String(r.id) === String(registroId));
     
     if (!registro) {
         showNotification('Registro no encontrado', 'error');
         return;
     }
     
-    // Crear modal con detalles
+    // Guardar referencia activa para compartir y exportar
+    BitacoraApp.currentRegistroDetalle = registro;
+    
+    // Contar estados para resumen ejecutivo
+    let totalBueno = 0;
+    let totalRegular = 0;
+    let totalMalo = 0;
+    
+    Object.values(registro.equipos || {}).forEach(categoria => {
+        Object.values(categoria).forEach(equipo => {
+            if (equipo.estado === 'bueno') totalBueno++;
+            else if (equipo.estado === 'regular') totalRegular++;
+            else if (equipo.estado === 'malo') totalMalo++;
+        });
+    });
+    
+    // Crear modal con diseño minimalista compacto
     const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        padding: 20px;
-    `;
+    modal.className = 'modal modal-detalle';
+    modal.style.display = 'flex';
     
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-        width: 100%;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    `;
+    modalContent.className = 'modal-content modal-detalle-content';
     
-    // Generar contenido detallado
-    let equiposDetalle = '';
+    // Generar categorías en cuadrícula de 2 columnas
+    let categoriasHtml = '';
     Object.entries(registro.equipos || {}).forEach(([categoria, equipos]) => {
         const categoriaNombre = categoria.charAt(0).toUpperCase() + categoria.slice(1);
-        const iconClass = BitacoraApp.iconos[categoria];
+        const iconClass = BitacoraApp.iconos[categoria] || 'fas fa-cogs';
+        const listaEquipos = Object.entries(equipos);
+        const totalEquiposEnCat = listaEquipos.length;
         
-        equiposDetalle += `
-            <div style="margin-bottom: 1.5rem;">
-                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">
-                    <i class="${iconClass}"></i> ${categoriaNombre}
-                </h4>
-        `;
-        
-        Object.entries(equipos).forEach(([equipoId, equipoData]) => {
+        let filasEquipos = '';
+        listaEquipos.forEach(([equipoId, equipoData]) => {
             const equipoNombre = BitacoraApp.equiposNombres[equipoId] || equipoId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            const statusIcon = getStatusIcon(equipoData.estado);
-            const statusClass = equipoData.estado;
+            const statusClass = equipoData.estado || 'bueno';
+            const statusTexto = statusClass === 'bueno' ? 'OK' : statusClass === 'regular' ? 'Alerta' : 'Falla';
             
-            equiposDetalle += `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 6px; background: ${statusClass === 'bueno' ? '#d4edda' : statusClass === 'regular' ? '#fff3cd' : '#f8d7da'}; color: ${statusClass === 'bueno' ? '#155724' : statusClass === 'regular' ? '#856404' : '#721c24'};">
-                    <span><strong>${equipoNombre}</strong></span>
-                    <span>${statusIcon}</span>
+            filasEquipos += `
+                <div class="detalle-equipo-row-compact">
+                    <div>
+                        <div class="eq-name" title="${equipoNombre}">${equipoNombre}</div>
+                        ${equipoData.observaciones ? `<span class="eq-obs"><i class="fas fa-comment-dots"></i> ${equipoData.observaciones}</span>` : ''}
+                    </div>
+                    <span class="detalle-status-pill-mini ${statusClass}">
+                        <span class="status-dot-sm"></span> ${statusTexto}
+                    </span>
                 </div>
-                ${equipoData.observaciones ? `<div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem; padding-left: 1rem;"><em>${equipoData.observaciones}</em></div>` : ''}
             `;
         });
         
-        equiposDetalle += '</div>';
+        categoriasHtml += `
+            <div class="detalle-categoria-card">
+                <div class="detalle-categoria-header-compact">
+                    <i class="${iconClass}"></i>
+                    <h4>${categoriaNombre}</h4>
+                    <span class="cat-count">${totalEquiposEnCat}</span>
+                </div>
+                <div class="detalle-equipos-list-compact">
+                    ${filasEquipos}
+                </div>
+            </div>
+        `;
     });
     
     modalContent.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
-            <h2 style="color: var(--dark-color); margin: 0;">Detalle del Registro</h2>
-            <button onclick="this.closest('.modal').remove()" style="background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem;">×</button>
-        </div>
-        
-        <div style="margin-bottom: 2rem;">
-            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Información del Servicio</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                <div><strong>Tipo de Servicio:</strong><br>${registro.tipoServicio}</div>
-                <div><strong>Fecha:</strong><br>${formatDate(registro.fechaServicio)}</div>
-                <div><strong>Hora:</strong><br>${registro.horaInicio}${registro.horaFinalizacion ? ' - ' + registro.horaFinalizacion : ''}</div>
-                <div><strong>Responsable:</strong><br>${registro.nombreResponsable}</div>
-                <div><strong>Rol:</strong><br>${registro.rolResponsable}</div>
-                <div><strong>Registrado:</strong><br>${formatDateTime(registro.fecha)}</div>
+        <div id="reporte-captura-area" class="reporte-captura-area">
+            <div class="modal-detalle-header">
+                <div class="modal-detalle-title-wrap">
+                    <div class="modal-detalle-top-meta">
+                        <span class="modal-detalle-badge">${registro.tipoServicio}</span>
+                        <div class="modal-detalle-summary-pills">
+                            <span class="summary-chip good"><i class="fas fa-check"></i> ${totalBueno}</span>
+                            ${totalRegular > 0 ? `<span class="summary-chip warning"><i class="fas fa-exclamation-triangle"></i> ${totalRegular}</span>` : ''}
+                            ${totalMalo > 0 ? `<span class="summary-chip danger"><i class="fas fa-times"></i> ${totalMalo}</span>` : ''}
+                        </div>
+                    </div>
+                    <h2 class="modal-detalle-title">Reporte del Servicio</h2>
+                </div>
+                <button class="modal-close" onclick="this.closest('.modal').remove()" aria-label="Cerrar">&times;</button>
             </div>
-            ${registro.observacionesGenerales ? `<div><strong>Observaciones Generales:</strong><br><em>${registro.observacionesGenerales}</em></div>` : ''}
+            
+            <!-- Metadatos Compactos (4 Columnas) -->
+            <div class="detalle-info-card-compact">
+                <div class="detalle-info-item-compact">
+                    <span class="detalle-info-label-compact"><i class="fas fa-calendar-alt"></i> Fecha</span>
+                    <span class="detalle-info-value-compact" title="${formatDate(registro.fechaServicio)}">${formatDate(registro.fechaServicio)}</span>
+                </div>
+                <div class="detalle-info-item-compact">
+                    <span class="detalle-info-label-compact"><i class="fas fa-clock"></i> Horario</span>
+                    <span class="detalle-info-value-compact">${registro.horaInicio}${registro.horaFinalizacion ? ' - ' + registro.horaFinalizacion : ''}</span>
+                </div>
+                <div class="detalle-info-item-compact">
+                    <span class="detalle-info-label-compact"><i class="fas fa-user-check"></i> Responsable</span>
+                    <span class="detalle-info-value-compact">${registro.nombreResponsable} <small>(${registro.rolResponsable || 'Servidor'})</small></span>
+                </div>
+                <div class="detalle-info-item-compact">
+                    <span class="detalle-info-label-compact"><i class="fas fa-history"></i> Registrado</span>
+                    <span class="detalle-info-value-compact">${formatDateTime(registro.fecha)}</span>
+                </div>
+            </div>
+            
+            ${registro.observacionesGenerales ? `
+                <div class="detalle-observaciones-compact">
+                    <strong><i class="fas fa-sticky-note"></i> Nota:</strong>
+                    <span>"${registro.observacionesGenerales}"</span>
+                </div>
+            ` : ''}
+            
+            <!-- Cuadrícula 2 Columnas de Equipos -->
+            <div class="detalle-categories-grid">
+                ${categoriasHtml || '<p style="color: var(--text-muted); font-size: 0.85rem; grid-column: span 2;">No hay equipos registrados.</p>'}
+            </div>
         </div>
         
-        <div>
-            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Estado de Equipos</h3>
-            ${equiposDetalle}
-        </div>
-        
-        <div style="text-align: center; margin-top: 2rem;">
-            <button onclick="this.closest('.modal').remove()" class="btn btn-secondary">Cerrar</button>
+        <!-- Barra de Acciones: WhatsApp, Copiar Imagen, Cerrar -->
+        <div class="modal-detalle-toolbar">
+            <div class="modal-actions-left">
+                <button type="button" class="btn btn-whatsapp" onclick="compartirWhatsApp('${registro.id}', this)">
+                    <i class="fab fa-whatsapp"></i> Compartir WhatsApp
+                </button>
+                <button type="button" class="btn btn-copy-img" onclick="copiarImagenReporte(this)">
+                    <i class="fas fa-copy"></i> Copiar Imagen
+                </button>
+            </div>
+            <button type="button" onclick="this.closest('.modal').remove()" class="btn btn-secondary">Cerrar</button>
         </div>
     `;
     
-    modal.className = 'modal';
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
     
-    // Cerrar modal al hacer clic fuera
+    // Cerrar modal al hacer clic en el backdrop
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             modal.remove();
         }
     });
+}
+
+// ===== COMPARTIR EN WHATSAPP (CON IMAGEN Y TEXTO) =====
+async function compartirWhatsApp(registroId, btn) {
+    let r = BitacoraApp.currentRegistroDetalle;
+    if (!r || (registroId && String(r.id) !== String(registroId))) {
+        const registros = loadRegistros() || [];
+        r = registros.find(x => String(x.id) === String(registroId));
+    }
+    
+    if (!r) {
+        showNotification('No se encontró la información del registro', 'error');
+        return;
+    }
+
+    let originalBtnHtml = '';
+    if (btn) {
+        originalBtnHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando...';
+        btn.disabled = true;
+    }
+    
+    let totalBueno = 0;
+    let totalRegular = 0;
+    let totalMalo = 0;
+    let novedades = [];
+    
+    Object.entries(r.equipos || {}).forEach(([cat, eqs]) => {
+        const catNombre = cat.charAt(0).toUpperCase() + cat.slice(1);
+        Object.entries(eqs).forEach(([eqId, data]) => {
+            const eqNombre = BitacoraApp.equiposNombres[eqId] || eqId;
+            if (data.estado === 'bueno') {
+                totalBueno++;
+            } else if (data.estado === 'regular') {
+                totalRegular++;
+                novedades.push(`• *${eqNombre}* (${catNombre}): Regular${data.observaciones ? ' - ' + data.observaciones : ''}`);
+            } else if (data.estado === 'malo') {
+                totalMalo++;
+                novedades.push(`• *${eqNombre}* (${catNombre}): Falla${data.observaciones ? ' - ' + data.observaciones : ''}`);
+            }
+        });
+    });
+
+    const totalEquipos = totalBueno + totalRegular + totalMalo;
+    const estadoIcono = totalMalo > 0 ? '🔴' : totalRegular > 0 ? '🟡' : '🟢';
+    const estadoTexto = totalMalo > 0 ? `${totalMalo} falla(s)` : totalRegular > 0 ? `${totalRegular} alerta(s)` : 'Todo Operativo';
+
+    // Texto breve y conciso del reporte para WhatsApp
+    let mensaje = `📋 *Reporte de Servicio - MECAL*\n` +
+        `• *Servicio:* ${r.tipoServicio}\n` +
+        `• *Fecha:* ${formatDate(r.fechaServicio)} (${r.horaInicio}${r.horaFinalizacion ? ' - ' + r.horaFinalizacion : ''})\n` +
+        `• *Responsable:* ${r.nombreResponsable}\n` +
+        `• *Estado:* ${estadoIcono} ${estadoTexto} (${totalBueno}/${totalEquipos} OK)\n`;
+
+    if (r.observacionesGenerales) {
+        mensaje += `• *Nota:* ${r.observacionesGenerales}\n`;
+    }
+
+    if (novedades.length > 0) {
+        mensaje += `\n⚠️ *Novedades:*\n` + novedades.join('\n') + `\n`;
+    }
+
+    mensaje += `\n📸 _(Ver imagen adjunta con el detalle completo)_`;
+
+    const area = document.getElementById('reporte-captura-area');
+    let imageBlob = null;
+    let imageFile = null;
+
+    // Generar captura de imagen del reporte
+    if (area && typeof html2canvas !== 'undefined') {
+        try {
+            const prevAreaOverflow = area.style.overflow;
+            const prevAreaHeight = area.style.height;
+            const prevAreaMaxHeight = area.style.maxHeight;
+
+            area.style.overflow = 'visible';
+            area.style.height = 'auto';
+            area.style.maxHeight = 'none';
+
+            const grid = area.querySelector('.detalle-categories-grid');
+            const prevGridMaxHeight = grid ? grid.style.maxHeight : '';
+            const prevGridOverflow = grid ? grid.style.overflow : '';
+            if (grid) {
+                grid.style.maxHeight = 'none';
+                grid.style.overflow = 'visible';
+            }
+
+            const canvas = await html2canvas(area, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false,
+                windowWidth: 1000
+            });
+
+            area.style.overflow = prevAreaOverflow;
+            area.style.height = prevAreaHeight;
+            area.style.maxHeight = prevAreaMaxHeight;
+            if (grid) {
+                grid.style.maxHeight = prevGridMaxHeight;
+                grid.style.overflow = prevGridOverflow;
+            }
+
+            imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (imageBlob) {
+                imageFile = new File([imageBlob], `reporte-mecal-${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
+            }
+        } catch (e) {
+            console.warn('Error capturando imagen:', e);
+        }
+    }
+
+    if (btn) {
+        btn.innerHTML = originalBtnHtml;
+        btn.disabled = false;
+    }
+
+    // 1. En dispositivos con Web Share nativo (móviles/tablets): compartir imagen + texto directamente
+    if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+        try {
+            await navigator.share({
+                title: 'Reporte de Servicio MECAL',
+                text: mensaje,
+                files: [imageFile]
+            });
+            showNotification('✅ Reporte e imagen enviados a WhatsApp', 'success');
+            return;
+        } catch (shareErr) {
+            if (shareErr.name === 'AbortError') return;
+            console.warn('Fallback a WhatsApp Web tras error en share:', shareErr);
+        }
+    }
+
+    // 2. En PC / WhatsApp Web: copiar imagen al portapapeles y abrir WhatsApp
+    let imagenEnPortapapeles = false;
+    if (imageBlob && navigator.clipboard && window.ClipboardItem) {
+        try {
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': imageBlob })
+            ]);
+            imagenEnPortapapeles = true;
+        } catch (e) {
+            console.warn('No se pudo escribir imagen al portapapeles:', e);
+        }
+    }
+
+    if (imagenEnPortapapeles) {
+        showNotification('📸 ¡Imagen copiada! En WhatsApp solo presiona Ctrl + V para enviarla.', 'success');
+    } else {
+        showNotification('📲 Abriendo WhatsApp con el reporte...', 'info');
+    }
+
+    // Abrir WhatsApp con el texto preparado
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+    const newWindow = window.open(url, '_blank');
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        window.location.href = url;
+    }
+}
+
+// ===== COPIAR / DESCARGAR IMAGEN COMPLETA DEL REPORTE =====
+async function copiarImagenReporte(btn) {
+    const area = document.getElementById('reporte-captura-area');
+    if (!area) return;
+    
+    if (typeof html2canvas === 'undefined') {
+        showNotification('Cargando librería de captura, intenta nuevamente...', 'warning');
+        return;
+    }
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Capturando...';
+    btn.disabled = true;
+    
+    try {
+        // Asegurar que cualquier contenedor con scroll o altura fija se expanda totalmente
+        const prevAreaOverflow = area.style.overflow;
+        const prevAreaHeight = area.style.height;
+        const prevAreaMaxHeight = area.style.maxHeight;
+
+        area.style.overflow = 'visible';
+        area.style.height = 'auto';
+        area.style.maxHeight = 'none';
+
+        const grid = area.querySelector('.detalle-categories-grid');
+        const prevMaxHeight = grid ? grid.style.maxHeight : '';
+        const prevOverflow = grid ? grid.style.overflow : '';
+        if (grid) {
+            grid.style.maxHeight = 'none';
+            grid.style.overflow = 'visible';
+        }
+
+        const canvas = await html2canvas(area, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            windowWidth: 1000
+        });
+        
+        // Restaurar estilos
+        area.style.overflow = prevAreaOverflow;
+        area.style.height = prevAreaHeight;
+        area.style.maxHeight = prevAreaMaxHeight;
+        if (grid) {
+            grid.style.maxHeight = prevMaxHeight;
+            grid.style.overflow = prevOverflow;
+        }
+        
+        // Intentar copiar al portapapeles directamente
+        if (navigator.clipboard && window.ClipboardItem) {
+            canvas.toBlob(async (blob) => {
+                if (blob) {
+                    try {
+                        await navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]);
+                        showNotification('📋 ¡Imagen COMPLETA copiada! Pégala en WhatsApp (Ctrl+V)', 'success');
+                    } catch (e) {
+                        descargarImagenCanvas(canvas);
+                    }
+                }
+            }, 'image/png');
+        } else {
+            descargarImagenCanvas(canvas);
+        }
+    } catch (err) {
+        console.error('Error generando imagen:', err);
+        showNotification('No se pudo generar la imagen del reporte', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+function descargarImagenCanvas(canvas) {
+    const link = document.createElement('a');
+    link.download = `reporte-mecal-${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showNotification('📸 Imagen completa guardada en tus descargas', 'success');
 }
 
 // ===== FUNCIONES ADICIONALES PARA FUTURAS MEJORAS =====
